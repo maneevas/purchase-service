@@ -13,4 +13,5 @@ router.get('/viewuser/:id', userController.viewall);
 router.get('/:id', userController.delete);
 
 
+
 module.exports = router;

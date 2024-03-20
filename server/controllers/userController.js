@@ -22,7 +22,7 @@ pool.getConnection((err, connection) => {
         connection.release();
         if(!err) {
             let removedUser = req.query.removed;
-            res.render('home', { rows, removedUser });
+            res.render('dashboard', { rows, removedUser });
         } else {
             console.log(err);
         }
@@ -43,7 +43,7 @@ exports.find = (req, res) => {
             //when done with the connection, release it
             connection.release();
             if(!err) {
-                res.render('home', { rows });
+                res.render('dashboard', { rows });
             } else {
                 console.log(err);
             }
@@ -60,6 +60,7 @@ exports.find = (req, res) => {
     //add new user
     exports.create = (req, res) => {
     const { surname, name, patname, location, email, password} = req.body;
+
 
     pool.getConnection((err, connection) => {
         if(err) throw err; //not connected!
@@ -100,7 +101,7 @@ exports.find = (req, res) => {
 
  //update user
 exports.update = (req, res) => {
-    const { surname, name, patname, location, email, status, password} = req.body;
+    const { surname, name, patname, location, email, password} = req.body;
   
     pool.getConnection((err, connection) => {
         if(err) throw err; //not connected!
@@ -122,7 +123,7 @@ exports.update = (req, res) => {
                         //when done with the connection, release it
                         connection.release();
                         if(!err) {
-                            res.render('edit-user', { rows, alert: 'Данные о пользователе были обновлены' });
+                            res.render('edit-user', { rows, alert: 'Данные о пользователе успешно обновлены' });
                         } else {
                             console.log(err);
                         }
@@ -150,7 +151,7 @@ exports.update = (req, res) => {
             connection.release();
             if(!err) {
                 let removedUser = encodeURIComponent('Пользователь успешно удален.')
-                res.redirect('/?removed=' + removedUser);
+                res.redirect('/dashboard?removed=' + removedUser);
             } else {
                 console.log(err);
             }

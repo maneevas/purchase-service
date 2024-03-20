@@ -35,7 +35,12 @@ pool.getConnection((err, connection) => {
     console.log('Connected as ID' + connection.threadId);
 });
 
-const routes = require('./server/routes/user')
-app.use('/', routes);
+app.get('/welcome', (req, res) => {
+    res.render('welcome');
+});
+
+
+const userRoutes = require('./server/routes/user')
+app.use('/dashboard', userRoutes);
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

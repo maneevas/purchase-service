@@ -1,10 +1,6 @@
-<nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/">Панель управления</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Редактировать пользователя</li>
-  </ol>
-</nav>
-
+<div class="row" style="padding-top: 80px;">
+    <div class="col-12"><h2>Редактировать данные пользователя</h2></div>
+</div>
 {{#if alert}}
 <div class="alert alert-success alert-dismissible fade show" role="alert">
 {{alert}}
@@ -13,7 +9,7 @@
 {{/if}}
 
 {{#each rows}}
-<form action="/edituser/{{this.id}}" class="row g-3 needs-validation" method="POST" novalidate>
+<form action="/dashboard/edituser/{{this.id}}" class="row g-3 needs-validation" method="POST" novalidate>
     {{> user-form}}
 </form>
 {{/each}}
