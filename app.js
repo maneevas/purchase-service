@@ -2,7 +2,7 @@ const express = require('express');
 const exphbs = require('express-handlebars');
 const bodyParser = require('body-parser');
 const mysql2 = require('mysql2');
-
+const cookieParser = require('cookie-parser');
 require('dotenv').config();
 
 const app = express();
