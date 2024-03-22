@@ -12,24 +12,25 @@ const pool = mysql2.createPool({
 //view users
 exports.view = (req, res) => {
 
-//connect to db
-pool.getConnection((err, connection) => {
-    if(err) throw err; //not connected!
-    console.log('Connected as ID' + connection.threadId);
-    //user the connection
-    connection.query('SELECT * FROM users', (err, rows) => {
-        //when done with the connection, release it
-        connection.release();
-        if(!err) {
-            let removedUser = req.query.removed;
-            res.render('dashboard', { rows, removedUser });
-        } else {
-            console.log(err);
-        }
-        console.log('The data from users table: \n', rows)
+    //connect to db
+    pool.getConnection((err, connection) => {
+        if(err) throw err; //not connected!
+        console.log('Connected as ID' + connection.threadId);
+        //user the connection
+        connection.query('SELECT * FROM users', (err, rows) => {
+            //when done with the connection, release it
+            connection.release();
+            if(!err) {
+                let removedUser = req.query.removed;
+                res.render('dashboard', { rows, removedUser, isAuthenticated: req.session.isAuthenticated });
+            } else {
+                console.log(err);
+            }
+            console.log('The data from users table: \n', rows)
+        });
     });
-});
-}
+    }
+    
 
 //find user by search
 exports.find = (req, res) => {
@@ -78,6 +79,7 @@ exports.find = (req, res) => {
         });
     });
 }
+
 
  //edit user
  exports.edit = (req, res) => {

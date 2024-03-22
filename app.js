@@ -4,13 +4,25 @@ const bodyParser = require('body-parser');
 const mysql2 = require('mysql2');
 const cookieParser = require('cookie-parser');
 require('dotenv').config();
+const passport = require('passport');
+const expressSession = require('express-session');
+
 
 const app = express();
+app.use(expressSession({ secret: 'catloaf11111' }));
+app.use(passport.initialize());
+app.use(passport.session());
 const port = process.env.PORT || 5000;
+
+//is auth
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.isAuthenticated();
+    next();
+});
+
 
 // parsing middleware
 app.use(bodyParser.urlencoded({ extended: false }));
-
 app.use(bodyParser.json());
 
 //static stuff
@@ -39,8 +51,10 @@ app.get('/welcome', (req, res) => {
     res.render('welcome');
 });
 
+const homeRoutes = require('./server/routes/home');
+app.use('/', homeRoutes);
 
-const userRoutes = require('./server/routes/user')
+const userRoutes = require('./server/routes/userRoute');
 app.use('/dashboard', userRoutes);
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
