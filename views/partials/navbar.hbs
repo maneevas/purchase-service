@@ -14,10 +14,16 @@
            <li class="nav-item">
             <a class="nav-link active" aria-current="page" href="/welcome">Главная страница</a>
           </li>           
-          <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/dashboard">Панель управления</a>
-          </li>
           {{#if isAuthenticated}}
+              {{#if user.is_admin}}
+                  <li class="nav-item">
+                      <a class="nav-link active" aria-current="page" href="/dashboard">Панель управления</a>
+                  </li>
+              {{else}}
+                  <li class="nav-item">
+                      <a class="nav-link active" aria-current="page" href="/myorders">Мои заказы</a>
+                  </li>
+              {{/if}}
               <li class="nav-item">
                   <a class="nav-link active" aria-current="page" href="/logout">Выйти</a>
               </li>

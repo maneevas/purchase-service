@@ -39,8 +39,13 @@ exports.login = (req, res) => {
             if(!err) {
                 if(rows.length > 0) {
                     req.session.isAuthenticated = true;
-                    req.session.user = rows[0]; // сохраняем данные пользователя в сессии
-                    res.redirect('/dashboard');
+                    req.session.user = rows[0];
+
+                    if(req.session.user.is_admin === 0) {
+                        res.redirect('/myorders');
+                    } else {
+                        res.redirect('/dashboard');
+                    }
                 } else {
                     connection.release();
                     res.render('login', { alert: 'Неверный email или пароль.' });

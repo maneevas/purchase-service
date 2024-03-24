@@ -12,7 +12,15 @@ function ensureAdmin(req, res, next) {
     res.redirect('/not-authorized');
 }
 
+function ensureUser(req, res, next) {
+    if (req.session && req.session.user && req.session.user.is_admin === 0) {
+        return next();
+    }
+    res.redirect('/not-authorized');
+}
+
 module.exports = {
     ensureAuthenticated,
-    ensureAdmin
+    ensureAdmin,
+    ensureUser
 };

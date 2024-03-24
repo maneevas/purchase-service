@@ -56,6 +56,9 @@ app.use((req, res, next) => {
 const homeRoutes = require('./server/routes/home');
 app.use('/', homeRoutes);
 
+const userRoutes2 = require('./server/routes/userRoute2');
+app.use('/', userRoutes2);
+
 const userRoutes = require('./server/routes/userRoute');
 app.use('/dashboard', userRoutes);
 

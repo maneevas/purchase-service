@@ -1,0 +1,51 @@
+<div class="row" style="padding-top: 80px;">
+{{#if removedUser}}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+Пользователь успешно удален.
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{{/if}}
+
+
+    <div class="col-12"><h1>Мои заказы</h1></div>
+    <div class="col-12 d-flex justify-content-start align-items-center">
+        <a href="/myorders/addorder" type="button" class="btn btn-primary me-2">Добавить</a>
+        <form class="d-flex" method="POST" action="/myorders" novalidate>
+            <input class="form-control me-2" type="search" placeholder="Ключевое слово" name="search" style="width: 150px;" aria-label="Search">
+            <button class="btn btn-outline-dark" type="submit">Найти</button>
+        </form>
+    </div>
+</div>
+
+
+
+<table class="table table-boarded">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Название</th>
+      <th scope="col">Количество</th>
+      <th scope="col">Ссылка</th>
+      <th scope="col">С</th>
+      <th scope="col">До</th>
+      <th scope="col">Статус</th>
+      <th scope="col" class="text-end">Действия</th>
+    </tr>
+  </thead>
+  <tbody>
+
+    {{#each rows}}
+    <tr>
+      <td>{{this.good}}</td>
+      <td>{{this.quantity}}</td>
+      <td>{{this.link}}</td>
+      <td>{{this.from}}</td>
+      <td>{{this.before}}</td>
+      <td>{{this.status}}</td>
+      <td class="text-end">
+        <a href="/myorders/editorder/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-pencil"></i>Изменить</a>
+      </td>
+    </tr>
+
+    {{/each}}
+  </tbody>
+</table>
