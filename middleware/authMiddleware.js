@@ -1,12 +1,12 @@
 function ensureAuthenticated(req, res, next) {
-    if (req.isAuthenticated()) {
+    if (req.session && req.session.user) {
         return next();
     }
     res.redirect('/login');
 }
 
 function ensureAdmin(req, res, next) {
-    if (req.user.is_admin) {
+    if (req.session && req.session.user && req.session.user.is_admin) {
         return next();
     }
     res.redirect('/not-authorized');

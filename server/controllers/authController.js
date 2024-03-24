@@ -39,14 +39,8 @@ exports.login = (req, res) => {
             if(!err) {
                 if(rows.length > 0) {
                     req.session.isAuthenticated = true;
-                    connection.query('SELECT * FROM users', (err, userRows) => {
-                        connection.release();
-                        if (!err) {
-                            res.render('dashboard', { alert: 'Вы успешно вошли!', rows: userRows });
-                        } else {
-                            console.log(err);
-                        }
-                    });
+                    req.session.user = rows[0]; // сохраняем данные пользователя в сессии
+                    res.redirect('/dashboard');
                 } else {
                     connection.release();
                     res.render('login', { alert: 'Неверный email или пароль.' });
@@ -58,4 +52,3 @@ exports.login = (req, res) => {
         });
     });
 };
-

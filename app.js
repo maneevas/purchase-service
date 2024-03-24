@@ -9,16 +9,16 @@ const expressSession = require('express-session');
 
 
 const app = express();
-app.use(expressSession({ secret: 'catloaf11111' }));
+app.use(expressSession({
+    secret: 'catloaf11111',
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false }
+  }));
+  
 app.use(passport.initialize());
 app.use(passport.session());
 const port = process.env.PORT || 5000;
-
-//is auth
-app.use((req, res, next) => {
-    res.locals.isAuthenticated = req.isAuthenticated();
-    next();
-});
 
 
 // parsing middleware
@@ -47,8 +47,10 @@ pool.getConnection((err, connection) => {
     console.log('Connected as ID' + connection.threadId);
 });
 
-app.get('/welcome', (req, res) => {
-    res.render('welcome');
+//is auth
+app.use((req, res, next) => {
+    res.locals.isAuthenticated = req.session.user ? true : false;
+    next();
 });
 
 const homeRoutes = require('./server/routes/home');
