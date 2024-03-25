@@ -1,12 +1,13 @@
 <div class="row" style="padding-top: 80px;">
-    <div class="col-12"><h2>Добавить нового пользователя</h2></div>
+    <div class="col-12"><h2>Обновить данные заказа</h2></div>
 </div>
- <nav aria-label="breadcrumb">
+<nav aria-label="breadcrumb">
   <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/dashboard">Панель управления</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Добавление пользователя</li>
+    <li class="breadcrumb-item active" aria-current="page">Изменение данных заказа</li>
   </ol>
 </nav>
+
 {{#if alert}}
 <div class="alert alert-success alert-dismissible fade show" role="alert">
 {{alert}}
@@ -14,6 +15,8 @@
 </div>
 {{/if}}
 
-<form action="/dashboard/adduser" class="row g-3 needs-validation" method="POST" novalidate>
-    {{> user-form}}
+{{#each rows}}
+<form action="/dashboard/editorderadmin/{{this.id}}" class="row g-3 needs-validation" method="POST" novalidate>
+    {{> edit-order-admin}}
 </form>
+{{/each}}

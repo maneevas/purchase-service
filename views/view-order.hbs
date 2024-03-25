@@ -1,0 +1,66 @@
+<div class="row" style="padding-top: 80px;">
+     {{#if error}}
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        {{error}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {{/if}}
+    {{#if removedMessage}}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        {{removedMessage}}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {{/if}}
+</div>
+<div class="view-user p-5">
+  {{#with user}}
+  <div class="row mb-5">
+    <div class="col text-center">
+      <h3>{{this.surname}} {{this.name}} {{this.patname}}</h3>
+    </div>
+  </div>
+  <nav aria-label="breadcrumb">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/dashboard">Панель управления</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Заказчик</li>
+  </ol>
+</nav>
+  {{/with}}
+  <div class="row">
+    <div class="col">
+      <table class="table">
+        <thead>
+          <tr>
+            <th scope="col">Логин</th>
+            <th scope="col">Название товара</th>
+            <th scope="col">Количество</th>
+            <th scope="col">Ссылка</th>
+            <th scope="col">Доставить с</th>
+            <th scope="col">До</th>
+            <th scope="col">Город</th>
+            <th scope="col">Статус заказа</th>
+            <th scope="col" class="text-end">Действия</th>
+          </tr>
+        </thead>
+        <tbody>
+          {{#each orders}}
+          <tr>
+            <th scope="row">{{../user.email}}</th>
+            <td>{{this.good}}</td>
+            <td>{{this.quantity}}</td>
+            <td><a href="{{this.link}}">{{this.link}}</a></td>
+            <td>{{formatDate this.from}}</td>
+            <td>{{formatDate this.before}}</td>
+            <td>{{../user.location}}</td>
+            <td>{{this.status}}</td>
+            <td class="text-end">
+            <a href="/dashboard/editorderadmin/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-pencil"></i>Изменить</a>
+            <a href="/dashboard/deleteorderadmin/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-trash"></i>Завершить</a>
+                </td>
+          {{/each}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+</div>

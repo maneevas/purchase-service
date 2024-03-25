@@ -1,10 +1,11 @@
 <div class="row" style="padding-top: 80px;">
-{{#if removedUser}}
+{{#if removedMessage}}
 <div class="alert alert-success alert-dismissible fade show" role="alert">
-Пользователь успешно удален.
+{{removedMessage}}
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {{/if}}
+
 
 
     <div class="col-12"><h1>Пользователи</h1></div>
@@ -23,12 +24,12 @@
   <thead class="thead-dark">
     <tr>
       <th scope="col">id</th>
+      <th scope="col">Логин</th>
       <th scope="col">Фамилия</th>
       <th scope="col">Имя</th>
       <th scope="col">Отчество</th>
       <th scope="col">Город</th>
-      <th scope="col">Email</th>
-      <th scope="col">Права</th>
+      <th scope="col">Активные заказы</th>
       <th scope="col" class="text-end">Действия</th>
     </tr>
   </thead>
@@ -37,14 +38,14 @@
     {{#each rows}}
     <tr>
       <th scope="row">{{this.id}}</th>
+      <td>{{this.email}}</td>
       <td>{{this.surname}}</td>
       <td>{{this.name}}</td>
       <td>{{this.patname}}</td>
       <td>{{this.location}}</td>
-      <td>{{this.email}}</td>
-      <td>{{this.is_admin}}</td>
+      <td>{{this.order_count}}</td>
       <td class="text-end">
-        <a href="/dashboard/viewuser/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-eye"></i>Закупки</a>
+        <a href="/dashboard/vieworder/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-eye"></i>Заказы</a>
         <a href="/dashboard/edituser/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-pencil"></i>Изменить</a>
         <a href="/dashboard/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-person-x"></i>Удалить</a>
       </td>

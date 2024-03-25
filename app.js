@@ -7,19 +7,17 @@ require('dotenv').config();
 const passport = require('passport');
 const expressSession = require('express-session');
 
-
 const app = express();
 app.use(expressSession({
     secret: 'catloaf11111',
     resave: false,
     saveUninitialized: true,
     cookie: { secure: false }
-  }));
-  
+}));
+
 app.use(passport.initialize());
 app.use(passport.session());
 const port = process.env.PORT || 5000;
-
 
 // parsing middleware
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -29,7 +27,22 @@ app.use(bodyParser.json());
 app.use(express.static('public'));
 
 //templating engine
-app.engine('hbs', exphbs.engine( {extname: '.hbs' }));
+const hbs = exphbs.create({
+    extname: '.hbs',
+    helpers: {
+        eq: function (v1, v2) {
+            return v1 === v2;
+        },
+        formatDate: function (dateString) {
+            let date = new Date(dateString);
+            let day = date.getDate();
+            let month = date.getMonth() + 1; // Месяцы начинаются с 0
+            let year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+    },
+},
+});
+app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
 //connection pool
@@ -56,10 +69,10 @@ app.use((req, res, next) => {
 const homeRoutes = require('./server/routes/home');
 app.use('/', homeRoutes);
 
-const userRoutes2 = require('./server/routes/userRoute2');
-app.use('/', userRoutes2);
-
 const userRoutes = require('./server/routes/userRoute');
 app.use('/dashboard', userRoutes);
+
+const userRoutes2 = require('./server/routes/userRoute2');
+app.use('/', userRoutes2);
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

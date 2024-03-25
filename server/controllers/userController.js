@@ -9,15 +9,13 @@ const pool = mysql2.createPool({
     database        : process.env.database
 });
 
-//view users
 exports.view = (req, res) => {
-
     //connect to db
     pool.getConnection((err, connection) => {
         if(err) throw err; //not connected!
         console.log('Connected as ID' + connection.threadId);
-        //user the connection
-        connection.query('SELECT * FROM users', (err, rows) => {
+        //use the connection
+        connection.query('SELECT users.*, COUNT(orders.id) as order_count FROM users LEFT JOIN orders ON users.id = orders.author_id WHERE users.is_admin = 0 GROUP BY users.id', (err, rows) => {
             //when done with the connection, release it
             connection.release();
             if(!err) {
@@ -29,7 +27,7 @@ exports.view = (req, res) => {
             console.log('The data from users table: \n', rows)
         });
     });
-    }
+};
     
 
 //find user by search
@@ -152,8 +150,8 @@ exports.update = (req, res) => {
             //when done with the connection, release it
             connection.release();
             if(!err) {
-                let removedUser = encodeURIComponent('Пользователь успешно удален.')
-                res.redirect('/dashboard?removed=' + removedUser);
+                let removedMessage = encodeURIComponent('Пользователь успешно удален.')
+                res.redirect('/dashboard?removed=' + removedMessage);
             } else {
                 console.log(err);
             }
@@ -162,25 +160,35 @@ exports.update = (req, res) => {
     });
  }
 
- //view users
-exports.viewall = (req, res) => {
+ //view specific orders
+ exports.vieworder = (req, res) => {
     //connect to db
     pool.getConnection((err, connection) => {
         if(err) throw err; //not connected!
         console.log('Connected as ID' + connection.threadId);
         //user the connection
-        connection.query('SELECT * FROM users WHERE id = ?',[req.params.id], (err, rows) => {
-            //when done with the connection, release it
-            connection.release();
-            if(!err) {
-                res.render('view-user', { rows });
-            } else {
+        connection.query('SELECT * FROM users WHERE id = ?', [req.params.id], (err, userRows) => {
+            if(err) {
                 console.log(err);
+                connection.release();
+                return;
             }
-            console.log('The data from users table: \n', rows)
+            console.log('The data from users table: \n', userRows);
+
+            connection.query('SELECT * FROM orders WHERE author_id = ?', [req.params.id], (err, orderRows) => {
+                //when done with the connection, release it
+                connection.release();
+                if(!err) {
+                    res.render('view-order', { user: userRows[0], orders: orderRows });
+                } else {
+                    console.log(err);
+                }
+                console.log('The data from orders table: \n', orderRows);
+            });
         });
     });
-    }
+};
+
 
     //users orders
     exports.myorders = (req, res) => {
@@ -253,7 +261,7 @@ exports.createOrder = (req, res) => {
 };
 
 //edit order
-exports.edit = (req, res) => {
+exports.editOrder = (req, res) => {
     pool.getConnection((err, connection) => {
         if(err) throw err; //not connected!
         console.log('Connected as ID' + connection.threadId);
@@ -273,7 +281,7 @@ exports.edit = (req, res) => {
 }
 
 //update order
-exports.update = (req, res) => {
+exports.updateOrder = (req, res) => {
     const { good, quantity, link, from, before } = req.body;
   
     pool.getConnection((err, connection) => {
@@ -311,3 +319,100 @@ exports.update = (req, res) => {
         });
     });
 }
+
+//edit order admin
+exports.editOrderAdmin = (req, res) => {
+    pool.getConnection((err, connection) => {
+        if(err) throw err; //not connected!
+        console.log('Connected as ID' + connection.threadId);
+        //user the connection
+
+        connection.query('SELECT * FROM orders WHERE id = ?',[req.params.id], (err, rows) => {
+            //when done with the connection, release it
+            connection.release();
+            if(!err) {
+                res.render('edit-order-admin', { rows });
+            } else {
+                console.log(err);
+            }
+            console.log('The data from orders table: \n', rows)
+        });
+    });
+}
+
+//update order admin
+exports.updateOrderAdmin = (req, res) => {
+    const { quantity, link, status } = req.body;
+  
+    pool.getConnection((err, connection) => {
+        if(err) throw err; //not connected!
+        console.log('Connected as ID' + connection.threadId);
+        //user the connection
+  
+        connection.query('UPDATE orders SET quantity = ?, link =?, status = ? WHERE id = ?',[quantity, link, status, req.params.id], (err, rows) => {
+            //when done with the connection, release it
+            connection.release();
+  
+            if(!err) {
+  
+                pool.getConnection((err, connection) => {
+                    if(err) throw err; //not connected!
+                    console.log('Connected as ID' + connection.threadId);
+                    //user the connection
+            
+                    connection.query('SELECT * FROM orders WHERE id = ?',[req.params.id], (err, rows) => {
+                        //when done with the connection, release it
+                        connection.release();
+                        if(!err) {
+                            res.render('edit-order-admin', { rows, alert: 'Данные о заказе успешно обновлены' });
+                        } else {
+                            console.log(err);
+                        }
+                        console.log('The data from orders table: \n', rows)
+                    });
+                });
+  
+            } else {
+                console.log(err);
+            }
+            console.log('The data from orders table: \n', rows)
+        });
+    });
+}
+
+// delete order
+exports.deleteOrder = (req, res) => {
+    pool.getConnection((err, connection) => {
+        if(err) throw err; //not connected!
+        console.log('Connected as ID' + connection.threadId);
+
+        // use the connection
+        connection.query('SELECT author_id FROM orders WHERE id = ?', [req.params.id], (err, rows) => {
+            if(err || rows.length === 0) {
+                console.log(err);
+                let errorMessage = encodeURIComponent('Произошла ошибка при удалении заказа.');
+                res.redirect('/dashboard/vieworder/' + req.params.id + '?error=' + errorMessage);
+                return;
+            }
+
+            let author_id = rows[0].author_id;
+
+            connection.query('DELETE FROM orders WHERE id = ? AND status = "Получен"', [req.params.id], (err, rows) => {
+                // when done with the connection, release it
+                connection.release();
+                let removedMessage;
+                if(!err) {
+                    if(rows.affectedRows == 0) {
+                        removedMessage = encodeURIComponent('Заказ не может быть удален, так как его статус не "Получен".');
+                    } else {
+                        removedMessage = encodeURIComponent('Заказ успешно удален.');
+                    }
+                } else {
+                    console.log(err);
+                    removedMessage = encodeURIComponent('Произошла ошибка при удалении заказа.');
+                }
+                res.redirect('/dashboard/vieworder/' + author_id + '?removed=' + removedMessage);
+            });
+        });
+    });
+};

@@ -9,8 +9,11 @@ router.get('/adduser', ensureAuthenticated, ensureAdmin, userController.form);
 router.post('/adduser', ensureAuthenticated, ensureAdmin, userController.create);
 router.get('/edituser/:id', ensureAuthenticated, ensureAdmin, userController.edit);
 router.post('/edituser/:id', ensureAuthenticated, ensureAdmin, userController.update);
-router.get('/viewuser/:id', ensureAuthenticated, ensureAdmin, userController.viewall);
+router.get('/vieworder/:id', ensureAuthenticated, ensureAdmin, userController.vieworder);
+router.get('/editorderadmin/:id', ensureAuthenticated, ensureAdmin, userController.editOrderAdmin);
+router.post('/editorderadmin/:id', ensureAuthenticated, ensureAdmin, userController.updateOrderAdmin);
 router.get('/:id', ensureAuthenticated, ensureAdmin, userController.delete);
+router.get('/deleteorderadmin/:id', ensureAuthenticated, ensureAdmin, userController.deleteOrder);
 
 
 module.exports = router;
