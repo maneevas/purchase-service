@@ -17,16 +17,10 @@
             <label for="floatingInput">Ссылка</label>
         </div>
     </div>
-        <div class="col-6">
-        <div class="form-floating mb-3">
-            <input type="date" class="form-control" id="floatingInput" value="{{this.from}}" placeholder="С" name="from">
-            <label for="floatingInput">С</label>
-        </div>
-    </div>
     <div class="col-6">
         <div class="form-floating mb-3">
-            <input type="date" class="form-control" id="floatingInput" value="{{this.before}}" placeholder="До" name="before">
-            <label for="floatingInput">До</label>
+            <input type="date" class="form-control" id="floatingInput" value="{{formatDate this.arrival_date}}" placeholder="Желаемая дата доставки" name="arrival_date">
+            <label for="floatingInput">Желаемая дата доставки</label>
         </div>
     </div>
 

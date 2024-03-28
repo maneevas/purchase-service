@@ -240,14 +240,14 @@ exports.formOrder = (req, res) => {
 
 //add new order
 exports.createOrder = (req, res) => {
-    const { good, quantity, link, from, before } = req.body;
+    const { good, quantity, link, arrival_date } = req.body;
     const author_id = req.session.user.id;
 
     pool.getConnection((err, connection) => {
         if(err) throw err;
         console.log('Connected as ID' + connection.threadId);
         //use the connection
-        connection.query('INSERT INTO orders SET good = ?, quantity = ?, link = ?, `from` = ?, `before` = ?, author_id = ?', [good, quantity, link, from, before, author_id], (err, rows) => {
+        connection.query('INSERT INTO orders SET good = ?, quantity = ?, link = ?, creation_date = NOW(), arrival_date = ?, author_id = ?', [good, quantity, link, arrival_date, author_id], (err, rows) => {
             //when done with the connection, release it
             connection.release();
             if(!err) {
@@ -282,14 +282,14 @@ exports.editOrder = (req, res) => {
 
 //update order
 exports.updateOrder = (req, res) => {
-    const { good, quantity, link, from, before } = req.body;
+    const { good, quantity, link, arrival_date } = req.body;
   
     pool.getConnection((err, connection) => {
         if(err) throw err; //not connected!
         console.log('Connected as ID' + connection.threadId);
         //user the connection
   
-        connection.query('UPDATE orders SET good = ?, quantity = ?, link =?, `from` = ?, `before` = ? WHERE id = ?',[good, quantity, link, from, before, req.params.id], (err, rows) => {
+        connection.query('UPDATE orders SET good = ?, quantity = ?, link =?, arrival_date = ? WHERE id = ?',[good, quantity, link, arrival_date, req.params.id], (err, rows) => {
             //when done with the connection, release it
             connection.release();
   
@@ -318,7 +318,7 @@ exports.updateOrder = (req, res) => {
             console.log('The data from orders table: \n', rows)
         });
     });
-}
+};
 
 //edit order admin
 exports.editOrderAdmin = (req, res) => {

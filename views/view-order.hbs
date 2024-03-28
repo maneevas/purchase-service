@@ -35,8 +35,8 @@
             <th scope="col">Название товара</th>
             <th scope="col">Количество</th>
             <th scope="col">Ссылка</th>
-            <th scope="col">Доставить с</th>
-            <th scope="col">До</th>
+            <th scope="col">Дата оформления заказа</th>
+            <th scope="col">Желаемая дата доставки</th>
             <th scope="col">Город</th>
             <th scope="col">Статус заказа</th>
             <th scope="col" class="text-end">Действия</th>
@@ -49,8 +49,8 @@
             <td>{{this.good}}</td>
             <td>{{this.quantity}}</td>
             <td><a href="{{this.link}}">{{this.link}}</a></td>
-            <td>{{formatDate this.from}}</td>
-            <td>{{formatDate this.before}}</td>
+            <td>{{formatDate this.creation_date}}</td>
+            <td>{{formatDate this.arrival_date}}</td>
             <td>{{../user.location}}</td>
             <td>{{this.status}}</td>
             <td class="text-end">

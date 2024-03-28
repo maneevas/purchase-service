@@ -40,6 +40,7 @@ exports.login = (req, res) => {
                 if(rows.length > 0) {
                     req.session.isAuthenticated = true;
                     req.session.user = rows[0];
+                    console.log(req.session.user);
 
                     if(req.session.user.is_admin === 0) {
                         res.redirect('/myorders');

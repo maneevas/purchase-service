@@ -34,14 +34,18 @@ const hbs = exphbs.create({
             return v1 === v2;
         },
         formatDate: function (dateString) {
+            if (!dateString) {
+                return ''; // Если дата не установлена, возвращаем пустую строку
+            }
             let date = new Date(dateString);
             let day = date.getDate();
             let month = date.getMonth() + 1; // Месяцы начинаются с 0
             let year = date.getFullYear();
             return `${day}/${month}/${year}`;
+        },
     },
-},
 });
+
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 
