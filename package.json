@@ -1,13 +1,13 @@
 {
   "name": "purchase-service",
   "version": "1.0.0",
-  "description": "",
+  "description": "managing purchases",
   "main": "index.js",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon app.js"
+    "dev": "nodemon index"
   },
-  "author": "",
+  "author": "sonya",
   "license": "ISC",
   "dependencies": {
     "bcrypt": "^5.1.1",

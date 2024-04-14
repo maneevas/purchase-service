@@ -1,0 +1,363 @@
+import dotenv from 'dotenv';
+import mysql2 from 'mysql2';
+
+dotenv.config();
+
+//connection pool
+const pool = mysql2.createPool({
+    connectionLimit : 100,
+    host            : process.env.host,
+    user            : process.env.user,
+    password        : process.env.password,
+    database        : process.env.database
+});
+
+//register
+export const register = async (req, res) => {
+    const { surname, name, patname, location, email, password } = req.body;
+
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'INSERT INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
+        const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password]);
+        connection.release();
+        res.render('login', { alert: 'Пользователь успешно создан! Теперь вы можете войти.' });
+        console.log('The data from users table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+//login
+export const login = async (req, res) => {
+    const { email, password } = req.body;
+
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'SELECT * FROM users WHERE email = ? AND password = ?';
+        const [rows, fields] = await connection.query(query, [email, password]);
+        if (rows.length > 0) {
+            req.session.isAuthenticated = true;
+            req.session.user = rows[0];
+            console.log(req.session.user);
+
+            if (req.session.user.is_admin === 0) {
+                res.redirect('/myorders');
+            } else {
+                res.redirect('/dashboard');
+            }
+        } else {
+            connection.release();
+            res.render('login', { alert: 'Неверный email или пароль.' });
+        }
+    } catch (err) {
+        connection.release();
+        console.log(err);
+    }
+};
+
+//show users
+export const view = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'SELECT users.*, COUNT(orders.id) as order_count FROM users LEFT JOIN orders ON users.id = orders.author_id WHERE users.is_admin = 0 GROUP BY users.id';
+        const [rows, fields] = await connection.query(query);
+        connection.release();
+        let removedUser = req.query.removed;
+        res.render('dashboard', { rows, removedUser, isAuthenticated: req.session.isAuthenticated });
+        console.log('The data from users table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+    
+
+//find user by search
+export const find = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        let searchTerm = req.body.search;
+        const query = 'SELECT * from users WHERE surname LIKE ? OR location LIKE ?';
+        const [rows, fields] = await connection.query(query, ['%' + searchTerm + '%', '%' + searchTerm + '%']);
+        connection.release();
+        res.render('dashboard', { rows });
+        console.log('The data from users table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+export const form = (req, res) => {
+    res.render('add-user');
+};
+
+
+    //add new user
+    export const create = async (req, res) => {
+        const { surname, name, patname, location, email, password} = req.body;
+        try {
+            const connection = await pool.getConnection();
+            console.log('Connected as ID' + connection.threadId);
+            const query = 'INSERT  INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
+            const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password]);
+            connection.release();
+            res.render('add-user', { alert: 'Пользователь успешно создан!' });
+            console.log('The data from users table: \n', rows);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+
+ //edit user
+ export const edit = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'SELECT * FROM users WHERE id = ?';
+        const [rows, fields] = await connection.query(query, [req.params.id]);
+        connection.release();
+        res.render('edit-user', { rows });
+        console.log('The data from users table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+ //update user
+ export const update = async (req, res) => {
+    const { surname, name, patname, location, email, password} = req.body;
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'UPDATE users SET surname = ?, name = ?, patname =?, location = ?, email = ?, password = ? WHERE id = ?';
+        const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password, req.params.id]);
+        connection.release();
+        if(!err) {
+            const connection2 = await pool.getConnection();
+            console.log('Connected as ID' + connection2.threadId);
+            const query2 = 'SELECT * FROM users WHERE id = ?';
+            const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
+            connection2.release();
+            res.render('edit-user', { rows: rows2, alert: 'Данные о пользователе успешно обновлены' });
+            console.log('The data from users table: \n', rows2);
+        } else {
+            console.log(err);
+        }
+        console.log('The data from users table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+  
+   //delete user
+   export const deleteUser = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'DELETE FROM users WHERE id = ?';
+        const [rows, fields] = await connection.query(query, [req.params.id]);
+        connection.release();
+        if(!err) {
+            let removedMessage = encodeURIComponent('Пользователь успешно удален.')
+            res.redirect('/dashboard?removed=' + removedMessage);
+        } else {
+            console.log(err);
+        }
+        console.log('The data from users table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+ //view specific orders
+ export const vieworder = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'SELECT * FROM users WHERE id = ?';
+        const [userRows, userFields] = await connection.query(query, [req.params.id]);
+        console.log('The data from users table: \n', userRows);
+        const query2 = 'SELECT * FROM orders WHERE author_id = ?';
+        const [orderRows, orderFields] = await connection.query(query2, [req.params.id]);
+        connection.release();
+        res.render('view-order', { user: userRows[0], orders: orderRows });
+        console.log('The data from orders table: \n', orderRows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+
+    //users orders
+    //exports.myorders = (req, res) => {
+    //    res.render('myorders', { user: req.session.user });
+    //};
+    
+    //view orders
+    export const myorders = async (req, res) => {
+        try {
+            const connection = await pool.getConnection();
+            console.log('Connected as ID' + connection.threadId);
+            const query = 'SELECT * FROM orders WHERE author_id = ?';
+            const [rows, fields] = await connection.query(query, [req.session.user.id]);
+            connection.release();
+            res.render('myorders', { rows, isAuthenticated: req.session.isAuthenticated });
+            console.log('The data from orders table: \n', rows);
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+//find order by search
+export const findOrders = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        let searchTerm = req.body.search;
+        const query = 'SELECT * FROM orders WHERE author_id = ? AND good LIKE ?';
+        const [rows, fields] = await connection.query(query, [req.session.user.id, '%' + searchTerm + '%']);
+        connection.release();
+        res.render('myorders', { rows });
+        console.log('The data from orders table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+export const formOrder = (req, res) => {
+    res.render('add-order');
+};
+
+//add new order
+export const createOrder = async (req, res) => {
+    const { good, quantity, link, arrival_date } = req.body;
+    const author_id = req.session.user.id;
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'INSERT INTO orders SET good = ?, quantity = ?, link = ?, creation_date = NOW(), arrival_date = ?, author_id = ?';
+        const [rows, fields] = await connection.query(query, [good, quantity, link, arrival_date, author_id]);
+        connection.release();
+        res.render('add-order', { alert: 'Заказ успешно создан!' });
+        console.log('The data from orders table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+//edit order
+export const editOrder = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'SELECT * FROM orders WHERE id = ?';
+        const [rows, fields] = await connection.query(query, [req.params.id]);
+        connection.release();
+        res.render('edit-order', { rows });
+        console.log('The data from orders table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+//update order
+export const updateOrder = async (req, res) => {
+    const { good, quantity, link, arrival_date } = req.body;
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'UPDATE orders SET good = ?, quantity = ?, link =?, arrival_date = ? WHERE id = ?';
+        const [rows, fields] = await connection.query(query, [good, quantity, link, arrival_date, req.params.id]);
+        connection.release();
+        if(!err) {
+            const connection2 = await pool.getConnection();
+            console.log('Connected as ID' + connection2.threadId);
+            const query2 = 'SELECT * FROM orders WHERE id = ?';
+            const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
+            connection2.release();
+            res.render('edit-order', { rows: rows2, alert: 'Данные о заказе успешно обновлены' });
+            console.log('The data from orders table: \n', rows2);
+        } else {
+            console.log(err);
+        }
+        console.log('The data from orders table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+//edit order admin
+export const editOrderAdmin = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'SELECT * FROM orders WHERE id = ?';
+        const [rows, fields] = await connection.query(query, [req.params.id]);
+        connection.release();
+        res.render('edit-order-admin', { rows });
+        console.log('The data from orders table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+//update order admin
+export const updateOrderAdmin = async (req, res) => {
+    const { quantity, link, status } = req.body;
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'UPDATE orders SET quantity = ?, link =?, status = ? WHERE id = ?';
+        const [rows, fields] = await connection.query(query, [quantity, link, status, req.params.id]);
+        connection.release();
+        if(!err) {
+            const connection2 = await pool.getConnection();
+            console.log('Connected as ID' + connection2.threadId);
+            const query2 = 'SELECT * FROM orders WHERE id = ?';
+            const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
+            connection2.release();
+            res.render('edit-order-admin', { rows: rows2, alert: 'Данные о заказе успешно обновлены' });
+            console.log('The data from orders table: \n', rows2);
+        } else {
+            console.log(err);
+        }
+        console.log('The data from orders table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
+// delete order
+export const deleteOrder = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'SELECT author_id FROM orders WHERE id = ?';
+        const [rows, fields] = await connection.query(query, [req.params.id]);
+        if(rows.length === 0) {
+            let errorMessage = encodeURIComponent('Произошла ошибка при удалении заказа.');
+            res.redirect('/dashboard/vieworder/' + req.params.id + '?error=' + errorMessage);
+            return;
+        }
+        let author_id = rows[0].author_id;
+        const query2 = 'DELETE FROM orders WHERE id = ? AND status = "Получен"';
+        const [rows2, fields2] = await connection.query(query2, [req.params.id]);
+        connection.release();
+        let removedMessage;
+        if(rows2.affectedRows == 0) {
+            removedMessage = encodeURIComponent('Заказ не может быть удален, так как его статус не "Получен".');
+        } else {
+            removedMessage = encodeURIComponent('Заказ успешно удален.');
+        }
+        res.redirect('/dashboard/vieworder/' + author_id + '?removed=' + removedMessage);
+    } catch (err) {
+        console.log(err);
+        let errorMessage = encodeURIComponent('Произошла ошибка при удалении заказа.');
+        res.redirect('/dashboard/vieworder/' + req.params.id + '?error=' + errorMessage);
+    }
+};
