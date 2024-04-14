@@ -3,7 +3,7 @@ console.log(`Current directory: ${process.cwd()}`);
 import express from 'express'
 import exphbs from 'express-handlebars'
 import bodyParser from 'body-parser'
-import mysql2 from 'mysql2'
+import mysql from 'mysql2/promise';
 import cookieParser from 'cookie-parser'
 import passport from 'passport'
 import expressSession from 'express-session'
@@ -49,11 +49,11 @@ const hbs = exphbs.create({
         },
         formatDate: function (dateString) {
             if (!dateString) {
-                return ''; // Если дата не установлена, возвращаем пустую строку
+                return ''; 
             }
             let date = new Date(dateString);
             let day = date.getDate();
-            let month = date.getMonth() + 1; // Месяцы начинаются с 0
+            let month = date.getMonth() + 1;
             let year = date.getFullYear();
             return `${day}/${month}/${year}`;
         },
@@ -62,9 +62,10 @@ const hbs = exphbs.create({
 
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
+app.set('views','views');
 
 //connection pool
-const pool = mysql2.createPool({
+export const pool = mysql.createPool({
     connectionLimit : 100,
     host            : process.env.host,
     user            : process.env.user,
@@ -80,7 +81,6 @@ pool.getConnection((err, connection) => {
     }
     console.log('Connected as ID' + connection.threadId);
 });
-
 
 //is auth
 app.use((req, res, next) => {

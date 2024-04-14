@@ -1,29 +1,22 @@
 import dotenv from 'dotenv';
-import mysql2 from 'mysql2';
-
 dotenv.config();
-
-//connection pool
-const pool = mysql2.createPool({
-    connectionLimit : 100,
-    host            : process.env.host,
-    user            : process.env.user,
-    password        : process.env.password,
-    database        : process.env.database
-});
+import { pool } from '../index.js';
 
 //register
 export const register = async (req, res) => {
     const { surname, name, patname, location, email, password } = req.body;
 
     try {
-        const connection = await pool.getConnection();
-        console.log('Connected as ID' + connection.threadId);
         const query = 'INSERT INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
-        const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password]);
-        connection.release();
-        res.render('login', { alert: 'Пользователь успешно создан! Теперь вы можете войти.' });
-        console.log('The data from users table: \n', rows);
+        console.log('Выполняется SQL-запрос: ', query);
+        const result = await pool.execute(query, [surname, name, patname, location, email, password]);
+        if (result) {
+            const [rows, fields] = result;
+            res.render('login', { alert: 'Пользователь успешно создан! Теперь вы можете войти.' });
+            console.log('The data from users table: \n', rows);
+        } else {
+            console.log('Ошибка: результат запроса к базе данных не определен');
+        }
     } catch (err) {
         console.log(err);
     }
@@ -33,11 +26,23 @@ export const register = async (req, res) => {
 export const login = async (req, res) => {
     const { email, password } = req.body;
 
+    // check for null or undefined
+    if (!email || !password) {
+        console.log('Ошибка: email или password не определены');
+        return;
+    }
+
     try {
-        const connection = await pool.getConnection();
-        console.log('Connected as ID' + connection.threadId);
         const query = 'SELECT * FROM users WHERE email = ? AND password = ?';
-        const [rows, fields] = await connection.query(query, [email, password]);
+        console.log('Выполняется SQL-запрос: ', query);
+        console.log(`Email: ${email}, Password: ${password}`); // see params
+
+        const connection = await pool.getConnection();
+        console.log('Подключено как ID ' + connection.threadId);
+
+        const [rows, fields] = await connection.execute(query, [email, password]);
+
+        // Обработка результатов запроса...
         if (rows.length > 0) {
             req.session.isAuthenticated = true;
             req.session.user = rows[0];
@@ -49,12 +54,12 @@ export const login = async (req, res) => {
                 res.redirect('/dashboard');
             }
         } else {
-            connection.release();
             res.render('login', { alert: 'Неверный email или пароль.' });
         }
+        
+        connection.release(); // Освобождение соединения
     } catch (err) {
-        connection.release();
-        console.log(err);
+        console.error(err);
     }
 };
 
@@ -129,7 +134,7 @@ export const form = (req, res) => {
 };
 
  //update user
- export const update = async (req, res) => {
+export const update = async (req, res) => {
     const { surname, name, patname, location, email, password} = req.body;
     try {
         const connection = await pool.getConnection();
@@ -137,42 +142,40 @@ export const form = (req, res) => {
         const query = 'UPDATE users SET surname = ?, name = ?, patname =?, location = ?, email = ?, password = ? WHERE id = ?';
         const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password, req.params.id]);
         connection.release();
-        if(!err) {
-            const connection2 = await pool.getConnection();
-            console.log('Connected as ID' + connection2.threadId);
-            const query2 = 'SELECT * FROM users WHERE id = ?';
-            const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
-            connection2.release();
-            res.render('edit-user', { rows: rows2, alert: 'Данные о пользователе успешно обновлены' });
-            console.log('The data from users table: \n', rows2);
-        } else {
-            console.log(err);
-        }
+        
+        const connection2 = await pool.getConnection();
+        console.log('Connected as ID' + connection2.threadId);
+        const query2 = 'SELECT * FROM users WHERE id = ?';
+        const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
+        connection2.release();
+        res.render('edit-user', { rows: rows2, alert: 'Данные о пользователе успешно обновлены' });
+        console.log('The data from users table: \n', rows2);
+        
         console.log('The data from users table: \n', rows);
     } catch (err) {
         console.log(err);
     }
 };
+
   
-   //delete user
-   export const deleteUser = async (req, res) => {
+//delete user
+export const deleteUser = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
         const query = 'DELETE FROM users WHERE id = ?';
         const [rows, fields] = await connection.query(query, [req.params.id]);
         connection.release();
-        if(!err) {
-            let removedMessage = encodeURIComponent('Пользователь успешно удален.')
-            res.redirect('/dashboard?removed=' + removedMessage);
-        } else {
-            console.log(err);
-        }
+        
+        let removedMessage = encodeURIComponent('Пользователь успешно удален.')
+        res.redirect('/dashboard?removed=' + removedMessage);
+        
         console.log('The data from users table: \n', rows);
     } catch (err) {
         console.log(err);
     }
 };
+
 
  //view specific orders
  export const vieworder = async (req, res) => {
@@ -274,22 +277,21 @@ export const updateOrder = async (req, res) => {
         const query = 'UPDATE orders SET good = ?, quantity = ?, link =?, arrival_date = ? WHERE id = ?';
         const [rows, fields] = await connection.query(query, [good, quantity, link, arrival_date, req.params.id]);
         connection.release();
-        if(!err) {
-            const connection2 = await pool.getConnection();
-            console.log('Connected as ID' + connection2.threadId);
-            const query2 = 'SELECT * FROM orders WHERE id = ?';
-            const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
-            connection2.release();
-            res.render('edit-order', { rows: rows2, alert: 'Данные о заказе успешно обновлены' });
-            console.log('The data from orders table: \n', rows2);
-        } else {
-            console.log(err);
-        }
+        
+        const connection2 = await pool.getConnection();
+        console.log('Connected as ID' + connection2.threadId);
+        const query2 = 'SELECT * FROM orders WHERE id = ?';
+        const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
+        connection2.release();
+        res.render('edit-order', { rows: rows2, alert: 'Данные о заказе успешно обновлены' });
+        console.log('The data from orders table: \n', rows2);
+        
         console.log('The data from orders table: \n', rows);
     } catch (err) {
         console.log(err);
     }
 };
+
 
 //edit order admin
 export const editOrderAdmin = async (req, res) => {
@@ -315,17 +317,15 @@ export const updateOrderAdmin = async (req, res) => {
         const query = 'UPDATE orders SET quantity = ?, link =?, status = ? WHERE id = ?';
         const [rows, fields] = await connection.query(query, [quantity, link, status, req.params.id]);
         connection.release();
-        if(!err) {
-            const connection2 = await pool.getConnection();
-            console.log('Connected as ID' + connection2.threadId);
-            const query2 = 'SELECT * FROM orders WHERE id = ?';
-            const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
-            connection2.release();
-            res.render('edit-order-admin', { rows: rows2, alert: 'Данные о заказе успешно обновлены' });
-            console.log('The data from orders table: \n', rows2);
-        } else {
-            console.log(err);
-        }
+        
+        const connection2 = await pool.getConnection();
+        console.log('Connected as ID' + connection2.threadId);
+        const query2 = 'SELECT * FROM orders WHERE id = ?';
+        const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
+        connection2.release();
+        res.render('edit-order-admin', { rows: rows2, alert: 'Данные о заказе успешно обновлены' });
+        console.log('The data from orders table: \n', rows2);
+        
         console.log('The data from orders table: \n', rows);
     } catch (err) {
         console.log(err);
