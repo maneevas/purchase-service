@@ -85,6 +85,7 @@ pool.getConnection((err, connection) => {
 //is auth
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.user ? true : false;
+    console.log('isAuthenticated:', res.locals.isAuthenticated);
     next();
 });
 
@@ -97,6 +98,7 @@ export function ensureAuthenticated(req, res, next) {
 
 export function ensureAdmin(req, res, next) {
     if (req.session && req.session.user && req.session.user.is_admin) {
+        console.log('User is admin');
         return next();
     }
     res.redirect('/not-authorized');
@@ -112,25 +114,23 @@ export function ensureUser(req, res, next) {
 
 // routes
 
-const router = express.Router();
-
-router.get('/', (req, res) => {
+app.get('/', (req, res) => {
     res.render('welcome', { title: 'Главная страница' });
 });
 
-router.get('/register', (req, res) => {
-    res.render('register');
+app.get('/register', (req, res) => {
+    res.render('register', { title: 'Регистрация' });
 });
 
-router.post('/register', register);
+app.post('/register', register);
 
-router.get('/login', (req, res) => {
-    res.render('login');
+app.get('/login', (req, res) => {
+    res.render('login', { title: 'Вход' });
 });
 
-router.post('/login', login);
+app.post('/login', login);
 
-router.get('/logout', (req, res) => {
+app.get('/logout', (req, res) => {
     req.session.destroy(function(err) {
         if (err) {
             console.log(err);
@@ -140,25 +140,23 @@ router.get('/logout', (req, res) => {
     });
 });
 
-router.get('/dashboard', ensureAuthenticated, ensureAdmin, view);
-router.post('/dashboard', ensureAuthenticated, ensureAdmin, find);
-router.get('/dashboard/adduser', ensureAuthenticated, ensureAdmin, form);
-router.post('/dashboard/adduser', ensureAuthenticated, ensureAdmin, create);
-router.get('/dashboard/edituser/:id', ensureAuthenticated, ensureAdmin, edit);
-router.post('/dashboard/edituser/:id', ensureAuthenticated, ensureAdmin, update);
-router.get('/dashboard/vieworder/:id', ensureAuthenticated, ensureAdmin, vieworder);
-router.get('/dashboard/editorderadmin/:id', ensureAuthenticated, ensureAdmin, editOrderAdmin);
-router.post('/dashboard/editorderadmin/:id', ensureAuthenticated, ensureAdmin, updateOrderAdmin);
-router.get('/dashboard/:id', ensureAuthenticated, ensureAdmin, deleteUser);
-router.get('/dashboard/deleteorderadmin/:id', ensureAuthenticated, ensureAdmin, deleteOrder);
+app.get('/dashboard', ensureAuthenticated, ensureAdmin, view);
+app.post('/dashboard', ensureAuthenticated, ensureAdmin, find);
+app.get('/dashboard/adduser', ensureAuthenticated, ensureAdmin, form);
+app.post('/dashboard/adduser', ensureAuthenticated, ensureAdmin, create);
+app.get('/dashboard/edituser/:id', ensureAuthenticated, ensureAdmin, edit);
+app.post('/dashboard/edituser/:id', ensureAuthenticated, ensureAdmin, update);
+app.get('/dashboard/vieworder/:id', ensureAuthenticated, ensureAdmin, vieworder);
+app.get('/dashboard/editorderadmin/:id', ensureAuthenticated, ensureAdmin, editOrderAdmin);
+app.post('/dashboard/editorderadmin/:id', ensureAuthenticated, ensureAdmin, updateOrderAdmin);
+app.get('/dashboard/:id', ensureAuthenticated, ensureAdmin, deleteUser);
+app.get('/dashboard/deleteorderadmin/:id', ensureAuthenticated, ensureAdmin, deleteOrder);
 
-router.get('/myorders', ensureAuthenticated, ensureUser, myorders);
-router.post('/myorders', ensureAuthenticated, ensureUser, findOrders);
-router.get('/myorders/addorder', ensureAuthenticated, ensureUser, formOrder);
-router.post('/myorders/addorder', ensureAuthenticated, ensureUser, createOrder);
-router.get('/myorders/editorder/:id', ensureAuthenticated, ensureUser, editOrder);
-router.post('/myorders/editorder/:id', ensureAuthenticated, ensureUser, updateOrder);
-
-app.use('/', router);
+app.get('/myorders', ensureAuthenticated, ensureUser, myorders);
+app.post('/myorders', ensureAuthenticated, ensureUser, findOrders);
+app.get('/myorders/addorder', ensureAuthenticated, ensureUser, formOrder);
+app.post('/myorders/addorder', ensureAuthenticated, ensureUser, createOrder);
+app.get('/myorders/editorder/:id', ensureAuthenticated, ensureUser, editOrder);
+app.post('/myorders/editorder/:id', ensureAuthenticated, ensureUser, updateOrder);
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

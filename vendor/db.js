@@ -72,7 +72,7 @@ export const view = async (req, res) => {
         const [rows, fields] = await connection.query(query);
         connection.release();
         let removedUser = req.query.removed;
-        res.render('dashboard', { rows, removedUser, isAuthenticated: req.session.isAuthenticated });
+        res.render('dashboard', {title: 'База данных', rows, removedUser, isAuthenticated: req.session.isAuthenticated });
         console.log('The data from users table: \n', rows);
     } catch (err) {
         console.log(err);
@@ -89,7 +89,7 @@ export const find = async (req, res) => {
         const query = 'SELECT * from users WHERE surname LIKE ? OR location LIKE ?';
         const [rows, fields] = await connection.query(query, ['%' + searchTerm + '%', '%' + searchTerm + '%']);
         connection.release();
-        res.render('dashboard', { rows });
+        res.render('dashboard', {title: 'База данных', rows });
         console.log('The data from users table: \n', rows);
     } catch (err) {
         console.log(err);
@@ -97,7 +97,7 @@ export const find = async (req, res) => {
 };
 
 export const form = (req, res) => {
-    res.render('add-user');
+    res.render('add-user', {title: 'Создание пользователя'});
 };
 
 
@@ -110,7 +110,7 @@ export const form = (req, res) => {
             const query = 'INSERT  INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
             const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password]);
             connection.release();
-            res.render('add-user', { alert: 'Пользователь успешно создан!' });
+            res.render('add-user', {title: 'Создание пользователя', alert: 'Пользователь успешно создан!' });
             console.log('The data from users table: \n', rows);
         } catch (err) {
             console.log(err);
@@ -126,7 +126,7 @@ export const form = (req, res) => {
         const query = 'SELECT * FROM users WHERE id = ?';
         const [rows, fields] = await connection.query(query, [req.params.id]);
         connection.release();
-        res.render('edit-user', { rows });
+        res.render('edit-user', {title: 'Редактирование пользователя', rows });
         console.log('The data from users table: \n', rows);
     } catch (err) {
         console.log(err);
@@ -148,7 +148,7 @@ export const update = async (req, res) => {
         const query2 = 'SELECT * FROM users WHERE id = ?';
         const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
         connection2.release();
-        res.render('edit-user', { rows: rows2, alert: 'Данные о пользователе успешно обновлены' });
+        res.render('edit-user', {title: 'Редактирование пользователя', rows: rows2, alert: 'Данные о пользователе успешно обновлены' });
         console.log('The data from users table: \n', rows2);
         
         console.log('The data from users table: \n', rows);
@@ -188,7 +188,7 @@ export const deleteUser = async (req, res) => {
         const query2 = 'SELECT * FROM orders WHERE author_id = ?';
         const [orderRows, orderFields] = await connection.query(query2, [req.params.id]);
         connection.release();
-        res.render('view-order', { user: userRows[0], orders: orderRows });
+        res.render('view-order', {title: 'Заказы пользователя', user: userRows[0], orders: orderRows });
         console.log('The data from orders table: \n', orderRows);
     } catch (err) {
         console.log(err);
@@ -209,7 +209,7 @@ export const deleteUser = async (req, res) => {
             const query = 'SELECT * FROM orders WHERE author_id = ?';
             const [rows, fields] = await connection.query(query, [req.session.user.id]);
             connection.release();
-            res.render('myorders', { rows, isAuthenticated: req.session.isAuthenticated });
+            res.render('myorders', {title: 'Мои заказы', rows, isAuthenticated: req.session.isAuthenticated });
             console.log('The data from orders table: \n', rows);
         } catch (err) {
             console.log(err);
@@ -225,7 +225,7 @@ export const findOrders = async (req, res) => {
         const query = 'SELECT * FROM orders WHERE author_id = ? AND good LIKE ?';
         const [rows, fields] = await connection.query(query, [req.session.user.id, '%' + searchTerm + '%']);
         connection.release();
-        res.render('myorders', { rows });
+        res.render('myorders', {title: 'Мои заказы', rows });
         console.log('The data from orders table: \n', rows);
     } catch (err) {
         console.log(err);
@@ -233,7 +233,7 @@ export const findOrders = async (req, res) => {
 };
 
 export const formOrder = (req, res) => {
-    res.render('add-order');
+    res.render('add-order', {title: 'Новый заказ',});
 };
 
 //add new order
@@ -246,7 +246,7 @@ export const createOrder = async (req, res) => {
         const query = 'INSERT INTO orders SET good = ?, quantity = ?, link = ?, creation_date = NOW(), arrival_date = ?, author_id = ?';
         const [rows, fields] = await connection.query(query, [good, quantity, link, arrival_date, author_id]);
         connection.release();
-        res.render('add-order', { alert: 'Заказ успешно создан!' });
+        res.render('add-order', {title: 'Новый заказ', alert: 'Заказ успешно создан!' });
         console.log('The data from orders table: \n', rows);
     } catch (err) {
         console.log(err);
@@ -261,7 +261,7 @@ export const editOrder = async (req, res) => {
         const query = 'SELECT * FROM orders WHERE id = ?';
         const [rows, fields] = await connection.query(query, [req.params.id]);
         connection.release();
-        res.render('edit-order', { rows });
+        res.render('edit-order', {title: 'Изменение заказа', rows });
         console.log('The data from orders table: \n', rows);
     } catch (err) {
         console.log(err);
@@ -283,7 +283,7 @@ export const updateOrder = async (req, res) => {
         const query2 = 'SELECT * FROM orders WHERE id = ?';
         const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
         connection2.release();
-        res.render('edit-order', { rows: rows2, alert: 'Данные о заказе успешно обновлены' });
+        res.render('edit-order', {title: 'Изменение заказа', rows: rows2, alert: 'Данные о заказе успешно обновлены' });
         console.log('The data from orders table: \n', rows2);
         
         console.log('The data from orders table: \n', rows);
@@ -301,7 +301,7 @@ export const editOrderAdmin = async (req, res) => {
         const query = 'SELECT * FROM orders WHERE id = ?';
         const [rows, fields] = await connection.query(query, [req.params.id]);
         connection.release();
-        res.render('edit-order-admin', { rows });
+        res.render('edit-order-admin', {title: 'Изменение заказа', rows });
         console.log('The data from orders table: \n', rows);
     } catch (err) {
         console.log(err);
@@ -323,7 +323,7 @@ export const updateOrderAdmin = async (req, res) => {
         const query2 = 'SELECT * FROM orders WHERE id = ?';
         const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
         connection2.release();
-        res.render('edit-order-admin', { rows: rows2, alert: 'Данные о заказе успешно обновлены' });
+        res.render('edit-order-admin', {title: 'Изменение заказа', rows: rows2, alert: 'Данные о заказе успешно обновлены' });
         console.log('The data from orders table: \n', rows2);
         
         console.log('The data from orders table: \n', rows);
