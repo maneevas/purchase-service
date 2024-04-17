@@ -1,0 +1,33 @@
+<div class="row" style="padding-top: 80px;">
+{{#if removedMessage}}
+<div class="alert alert-success alert-dismissible fade show" role="alert">
+{{removedMessage}}
+  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+{{/if}}
+    <div class="col-12"><h1>Управление заказами</h1></div>
+</div>
+
+
+<table class="table table-boarded">
+  <thead class="thead-dark">
+    <tr>
+      <th scope="col">Автор</th>
+      <th scope="col">Товар</th>
+      <th scope="col">Количество</th>
+      <th scope="col">Ссылка на товар</th>
+      <th scope="col">Желательные сроки</th>
+      <th scope="col">Статус</th>
+    </tr>
+  </thead>
+<tbody>
+    {{#each orders}}<tr>
+        <td><a href="/dashboard/vieworder/{{this.author_id}}">{{this.email}}</a></td>
+        <td>{{this.good}}</td>
+        <td>{{this.quantity}}</td>
+        <td><a href="{{this.link}}">{{this.link}}</a></td>
+        <td>{{formatDate this.arrival_date}}</td>
+        <td>{{this.status}}</td>
+    {{/each}}
+</tbody>
+</table>

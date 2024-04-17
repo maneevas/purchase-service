@@ -16,9 +16,7 @@
         <select class="form-control" id="floatingSelect" name="status">
             <option value="На рассмотрении" {{#if (eq this.status "На рассмотрении")}}selected{{/if}}>На рассмотрении</option>
             <option value="Закупаем" {{#if (eq this.status "Закупаем")}}selected{{/if}}>Закупаем</option>
-            <option value="Ждем" {{#if (eq this.status "Ждем")}}selected{{/if}}>Ждем</option>
             <option value="Доставляем" {{#if (eq this.status "Доставляем")}}selected{{/if}}>Доставляем</option>
-            <option value="Доставлен" {{#if (eq this.status "Доставлен")}}selected{{/if}}>Доставлен</option>
             <option value="Ожидает получения" {{#if (eq this.status "Ожидает получения")}}selected{{/if}}>Ожидает получения</option>
             <option value="Получен" {{#if (eq this.status "Получен")}}selected{{/if}}>Получен</option>
         </select>

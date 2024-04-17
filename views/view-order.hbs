@@ -13,7 +13,7 @@
     {{/if}}
 </div>
 <div class="view-user p-5">
-  {{#with user}}
+  {{#with viewedUser}}
   <div class="row mb-5">
     <div class="col text-center">
       <h3>{{this.surname}} {{this.name}} {{this.patname}}</h3>
@@ -45,13 +45,13 @@
         <tbody>
           {{#each orders}}
           <tr>
-            <th scope="row">{{../user.email}}</th>
+            <th scope="row">{{../viewedUser.email}}</th>
             <td>{{this.good}}</td>
             <td>{{this.quantity}}</td>
             <td><a href="{{this.link}}">{{this.link}}</a></td>
             <td>{{formatDate this.creation_date}}</td>
             <td>{{formatDate this.arrival_date}}</td>
-            <td>{{../user.location}}</td>
+            <td>{{../viewedUser.location}}</td>
             <td>{{this.status}}</td>
             <td class="text-end">
             <a href="/dashboard/editorderadmin/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-pencil"></i>Изменить</a>

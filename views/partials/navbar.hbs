@@ -17,11 +17,14 @@
           {{#if isAuthenticated}}
               {{#if user.is_admin}}
                   <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="/dashboard">Панель управления</a>
+                      <a class="nav-link active" aria-current="page" href="/manageorders">Управление заказами</a>
+                  </li>
+                  <li class="nav-item">
+                      <a class="nav-link active" aria-current="page" href="/dashboard">База данных</a>
                   </li>
               {{else}}
                   <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="/myorders">Заказы</a>
+                      <a class="nav-link active" aria-current="page" href="/myorders">Мои заказы</a>
                   </li>
               {{/if}}
               <li class="nav-item">

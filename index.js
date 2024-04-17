@@ -19,7 +19,7 @@ import { config } from 'dotenv';
 import { resolve } from 'path';
 config({ path: resolve(__dirname, '.env') });
 
-import {register,login,view,find,form,create,edit,update,deleteUser,vieworder,myorders,findOrders,formOrder,createOrder,editOrder,updateOrder,editOrderAdmin,updateOrderAdmin,deleteOrder} from './vendor/db.js'
+import {register,login,view,find,form,create,edit,update,deleteUser,viewall,vieworder,myorders,findOrders,formOrder,createOrder,editOrder,updateOrder,editOrderAdmin,updateOrderAdmin,deleteOrder} from './vendor/db.js'
 
 const app = express();
 app.use(expressSession({
@@ -111,20 +111,27 @@ export function ensureUser(req, res, next) {
     res.redirect('/not-authorized');
 }
 
-
+//function for redirecting when somebody tries to access register or login pages while being authorized
+function redirectIfAuthenticated(req, res, next) {
+    if (req.session && req.session.user) {
+        res.redirect('/');
+    } else {
+        next();
+    }
+}
 // routes
 
 app.get('/', (req, res) => {
-    res.render('welcome', { title: 'Главная страница' });
+    res.render('welcome', { title: 'Главная страница', user: req.session.user });
 });
 
-app.get('/register', (req, res) => {
+app.get('/register', redirectIfAuthenticated, (req, res) => {
     res.render('register', { title: 'Регистрация' });
 });
 
 app.post('/register', register);
 
-app.get('/login', (req, res) => {
+app.get('/login', redirectIfAuthenticated, (req, res) => {
     res.render('login', { title: 'Вход' });
 });
 
@@ -151,6 +158,9 @@ app.get('/dashboard/editorderadmin/:id', ensureAuthenticated, ensureAdmin, editO
 app.post('/dashboard/editorderadmin/:id', ensureAuthenticated, ensureAdmin, updateOrderAdmin);
 app.get('/dashboard/:id', ensureAuthenticated, ensureAdmin, deleteUser);
 app.get('/dashboard/deleteorderadmin/:id', ensureAuthenticated, ensureAdmin, deleteOrder);
+
+app.get('/manageorders', ensureAuthenticated, ensureAdmin, viewall);
+//app.post('/manageorders', ensureAuthenticated, ensureAdmin, find);
 
 app.get('/myorders', ensureAuthenticated, ensureUser, myorders);
 app.post('/myorders', ensureAuthenticated, ensureUser, findOrders);
