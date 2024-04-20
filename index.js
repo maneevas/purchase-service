@@ -4,7 +4,6 @@ import express from 'express'
 import exphbs from 'express-handlebars'
 import bodyParser from 'body-parser'
 import mysql from 'mysql2/promise';
-import cookieParser from 'cookie-parser'
 import passport from 'passport'
 import expressSession from 'express-session'
 

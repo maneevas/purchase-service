@@ -50,7 +50,7 @@ export const login = async (req, res) => {
             if (Number(req.session.user.is_admin) == 0) {
                 res.redirect('/myorders');
             } else {
-                res.redirect('/dashboard');
+                res.redirect('/manageorders');
             }
             
         } else {
@@ -214,32 +214,24 @@ export const editOrderAdmin = async (req, res) => {
     }
 };
 
-//update order admin
 export const updateOrderAdmin = async (req, res) => {
     const { quantity, link, status } = req.body;
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
         const query = 'UPDATE orders SET quantity = ?, link =?, status = ? WHERE id = ?';
-        const [rows, fields] = await connection.query(query, [quantity, link, status, req.params.id]);
-
-        const query2 = 'SELECT * FROM orders WHERE id = ?';
-        const [orderRows, orderFields] = await connection.query(query2, [req.params.id]);
-
-        const query3 = 'SELECT * FROM users WHERE id = ?';
-        const [userRows, userFields] = await connection.query(query3, [orderRows[0].author_id]);
-        
+        await connection.query(query, [quantity, link, status, req.params.id]);
+        const query2 = 'SELECT orders.*, users.email FROM orders JOIN users ON orders.author_id = users.id';
+        const [orderRows, orderFields] = await connection.query(query2);
         connection.release();
-
-        res.render('view-order', {title: 'Заказы пользователя', viewedUser: userRows[0], orders: orderRows, isAuthenticated: req.session.isAuthenticated, user: req.session.user });
-
+        res.render('manage-orders', {title: 'Управление заказами', orders: orderRows, isAuthenticated: req.session.isAuthenticated, currentUser: req.session.user });
         console.log('The data from orders table: \n', orderRows);
-        
-        console.log('The data from users table: \n', userRows);
     } catch (err) {
         console.log(err);
     }
 };
+
+
 
 
 
@@ -252,7 +244,7 @@ export const deleteOrder = async (req, res) => {
         const [rows, fields] = await connection.query(query, [req.params.id]);
         if(rows.length === 0) {
             let errorMessage = encodeURIComponent('Произошла ошибка при удалении заказа.');
-            res.redirect('/dashboard/vieworder/' + req.params.id + '?error=' + errorMessage);
+            res.redirect('/manageorders?error=' + errorMessage);
             return;
         }
         let author_id = rows[0].author_id;
@@ -265,11 +257,11 @@ export const deleteOrder = async (req, res) => {
         } else {
             removedMessage = encodeURIComponent('Заказ успешно удален.');
         }
-        res.redirect('/dashboard/vieworder/' + author_id + '?removed=' + removedMessage);
+        res.redirect('/manageorders?removed=' + removedMessage);
     } catch (err) {
         console.log(err);
         let errorMessage = encodeURIComponent('Произошла ошибка при удалении заказа.');
-        res.redirect('/dashboard/vieworder/' + req.params.id + '?error=' + errorMessage);
+        res.redirect('/manageorders?error=' + errorMessage);
     }
 };
 
