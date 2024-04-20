@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Хост: localhost
--- Время создания: Мар 28 2024 г., 15:52
+-- Время создания: Апр 20 2024 г., 06:33
 -- Версия сервера: 10.7.3-MariaDB
 -- Версия PHP: 7.4.28
 
@@ -35,7 +35,7 @@ CREATE TABLE `orders` (
   `creation_date` datetime DEFAULT NULL,
   `arrival_date` datetime DEFAULT NULL,
   `author_id` bigint(20) UNSIGNED NOT NULL,
-  `status` enum('На рассмотрении','Закупаем','Ждём','Доставляем','Доставлен','Ожидает получения','Получен') DEFAULT NULL
+  `status` enum('На рассмотрении','Закупаем','Доставляем','Ожидает получения','Получен') DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
 --
@@ -43,11 +43,9 @@ CREATE TABLE `orders` (
 --
 
 INSERT INTO `orders` (`id`, `good`, `quantity`, `link`, `creation_date`, `arrival_date`, `author_id`, `status`) VALUES
-(1, 'Ваза \"Кошачья лапка\"', 1, 'https://www.ozon.ru/product/dekorativnaya-interernaya-nastolnaya-vaza-dlya-dekora-koshachya-lapka-1158629748', '2024-03-26 00:00:00', '2024-03-28 00:00:00', 29, 'На рассмотрении'),
-(3, 'Свеча чайная белая', 5, 'https://www.ozon.ru/product/svecha-bez-aromata-1-sm-h-3-7-sm-10-sht-736737643/', '2024-03-28 00:00:00', '2024-03-29 00:00:00', 29, 'Доставляем'),
-(4, 'Крафт пакет', 14, 'https://www.ozon.ru/product/podarochnyy-kraft-paket-s-kruchenymi-ruchkami-22h12h25-sm-10-shtuk-1294147968', '2024-03-27 00:00:00', '2024-03-29 00:00:00', 29, 'Доставляем'),
-(8, 'Мармелад', 10, 'https://www.ozon.ru/product/marmelad-zhevatelnyy-700-g-v-kisloy-obsypke-assorti-vkusov-chervyachki-gusenichki-mishki-yagodki-204460643', '2024-03-28 18:31:10', '2024-03-30 00:00:00', 31, 'На рассмотрении'),
-(10, 'Сыр', 19, 'https://www.ozon.ru/product/syr-brest-litovsk-klassicheskiy-kusok-200-g-145923198', '2024-03-28 18:59:11', '2024-04-02 00:00:00', 31, 'Доставляем');
+(12, 'Мармелад апельсиновый', 6, 'https://www.ozon.ru/product/marmelad-zheleynyy-apelsin-tri-kota-lakomstva-dlya-zdorovya-35g-12-sht-176657490', '2024-04-17 21:57:26', '2024-04-19 00:00:00', 5, 'Закупаем'),
+(13, 'Сыр', 1, 'https://www.ozon.ru/product/syr-brest-litovsk-klassicheskiy-kusok-200-g-145923198', '2024-04-18 00:07:10', '2024-04-19 00:00:00', 5, 'Доставляем'),
+(15, 'Тумба', 1, 'https://www.ozon.ru/product/zamm-tumba-mobilnaya-3-yashch-41h50h61-3-sm-1335255365', '2024-04-18 19:22:04', '2024-04-20 00:00:00', 5, 'Закупаем');
 
 -- --------------------------------------------------------
 
@@ -79,11 +77,12 @@ INSERT INTO `users` (`id`, `name`, `surname`, `patname`, `location`, `email`, `p
 (7, 'Полина', 'Курочкина', 'Павловна', 'Москва', 'kppavlovna', 'kpvkpv', NULL, NULL, 0),
 (8, 'Виктория', 'Никифорова', 'Саввична', 'Москва', 'nvsavvichna', 'nvsnvs', NULL, NULL, 0),
 (23, 'Валерия', 'Николаева', 'Сергеевна', 'Пермь', 'nvsergeevna', 'vnsvns', NULL, NULL, 0),
-(27, 'Георгий', 'Старов', 'Иванович', 'Тверь', 'sgivanovich', 'gsigsi', NULL, NULL, 0),
+(27, 'Георгий', 'Старов', 'Иванович', 'Тверь', 'sgivanovich1', 'gsigsi', NULL, NULL, 0),
 (28, 'Тимур', 'Светов', 'Алексеевич', 'Владикавказ', 'stalexeevich', 'tsatsa', NULL, NULL, 0),
 (29, 'Петр', 'Самойлов', 'Викторович', 'Санкт-Петербург', 'spviktorovich', 'psvpsv', NULL, NULL, 0),
 (31, 'Николай', 'Щепкин', 'Иванович', 'Рязань', 'nchivanovich1', 'nchinchi', NULL, NULL, 0),
-(32, 'Константин', 'Беляков', 'Дмитриевич', 'Томск', 'bidmitrievich', 'bidbid', NULL, NULL, 0);
+(32, 'Константин', 'Беляков', 'Дмитриевич', 'Томск', 'bidmitrievich', 'bidbid', NULL, NULL, 0),
+(34, 'Алексей', 'Романов', 'Алексеевич', 'Пермь', 'romanovA', 'araara', NULL, NULL, 0);
 
 --
 -- Индексы сохранённых таблиц
@@ -110,13 +109,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT для таблицы `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT для таблицы `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=39;
 
 --
 -- Ограничения внешнего ключа сохраненных таблиц
