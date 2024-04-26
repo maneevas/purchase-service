@@ -160,12 +160,13 @@ app.post('/dashboard/adduser', ensureAuthenticated, ensureAdmin, create);
 app.get('/dashboard/edituser/:id', ensureAuthenticated, ensureAdmin, edit);
 app.post('/dashboard/edituser/:id', ensureAuthenticated, ensureAdmin, update);
 app.get('/dashboard/vieworder/:id', ensureAuthenticated, ensureAdmin, vieworder);
-app.get('/dashboard/editorderadmin/:id', ensureAuthenticated, ensureAdmin, editOrderAdmin);
-app.post('/dashboard/editorderadmin/:id', ensureAuthenticated, ensureAdmin, updateOrderAdmin);
 app.get('/dashboard/:id', ensureAuthenticated, ensureAdmin, deleteUser);
-app.get('/dashboard/deleteorderadmin/:id', ensureAuthenticated, ensureAdmin, deleteOrder);
+
 
 app.get('/manageorders', ensureAuthenticated, ensureAdmin, viewall);
+app.get('/manageorders/editorderadmin/:id', ensureAuthenticated, ensureAdmin, editOrderAdmin);
+app.post('/manageorders/editorderadmin/:id', ensureAuthenticated, ensureAdmin, updateOrderAdmin);
+app.get('/manageorders/deleteorderadmin/:id', ensureAuthenticated, ensureAdmin, deleteOrder);
 //app.post('/manageorders', ensureAuthenticated, ensureAdmin, find);
 
 app.get('/myorders', ensureAuthenticated, ensureUser, myorders);

@@ -3,7 +3,7 @@
 </div>
 <nav aria-label="breadcrumb">
   <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/dashboard">Панель управления</a></li>
+    <li class="breadcrumb-item"><a href="/manageorders">Панель управления</a></li>
     <li class="breadcrumb-item active" aria-current="page">Изменение данных заказа</li>
   </ol>
 </nav>
@@ -16,7 +16,7 @@
 {{/if}}
 
 {{#each rows}}
-<form action="/dashboard/editorderadmin/{{this.id}}" class="row g-3 needs-validation" method="POST" novalidate>
+<form action="/manageorders/editorderadmin/{{this.id}}" class="row g-3 needs-validation" method="POST" novalidate>
     {{> edit-order-admin}}
 </form>
 {{/each}}
