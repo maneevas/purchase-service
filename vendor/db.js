@@ -70,18 +70,40 @@ export const view = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
-        const query = 'SELECT users.*, COUNT(orders.id) as order_count FROM users LEFT JOIN orders ON users.id = orders.author_id WHERE users.is_admin = 0 GROUP BY users.id';
+        let page = Number(req.query.page) || 1;
+        let limit = 8;
+        let offset = (page - 1) * limit;
+        const query = `SELECT users.*, COUNT(orders.id) as order_count FROM users LEFT JOIN orders ON users.id = orders.author_id WHERE users.is_admin = 0 GROUP BY users.id LIMIT ${limit} OFFSET ${offset}`;
         const [rows, fields] = await connection.query(query);
+        
+        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM users');
+        let totalPages = Math.ceil(totalRows[0].total / limit);
+        let pages = Array.from({length: totalPages}, (_, i) => {
+            return {
+                number: i + 1,
+                isCurrent: i + 1 === page
+            };
+        });
+
         connection.release();
         let removedUser = req.query.removed;
-        res.render('dashboard', {title: 'База данных', rows, removedUser, isAuthenticated: req.session.isAuthenticated, user: req.session.user });
+        res.render('dashboard', {
+            title: 'База данных', 
+            rows, 
+            removedUser, 
+            page: page,
+            totalPages: totalPages,
+            prevPage: page > 1 ? page - 1 : null,
+            nextPage: page < totalPages ? page + 1 : null,
+            pages: pages,
+            isAuthenticated: req.session.isAuthenticated,
+            user: req.session.user });
         console.log('The data from users table: \n', rows);
     } catch (err) {
         console.log(err);
     }
 };
 
-    
 
 //find user by search
 export const find = async (req, res) => {
@@ -185,13 +207,38 @@ export const deleteUser = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+
+        let page = Number(req.query.page) || 1;
+        let limit = 5;
+        let offset = (page - 1) * limit;
+
         const query = 'SELECT * FROM users WHERE id = ?';
         const [userRows, userFields] = await connection.query(query, [req.params.id]);
+
+        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders WHERE author_id = ?', [req.params.id]);
+        let totalPages = Math.ceil(totalRows[0].total / limit);
+
+        let pages = Array.from({length: totalPages}, (_, i) => {
+            return {
+                number: i + 1,
+                isCurrent: i + 1 === page
+            };
+        });
+
         console.log('The data from users table: \n', userRows);
-        const query2 = 'SELECT * FROM orders WHERE author_id = ?';
+        const query2 = `SELECT * FROM orders WHERE author_id = ? LIMIT ${limit} OFFSET ${offset}`;
         const [orderRows, orderFields] = await connection.query(query2, [req.params.id]);
         connection.release();
-        res.render('view-order', {title: 'Заказы пользователя', viewedUser: userRows[0], orders: orderRows, isAuthenticated: req.session.isAuthenticated, user: req.session.user });
+        res.render('view-order', {
+            title: 'Заказы пользователя', viewedUser: userRows[0], 
+            orders: orderRows, 
+            page: page,
+            totalPages: totalPages,
+            prevPage: page > 1 ? page - 1 : null,
+            nextPage: page < totalPages ? page + 1 : null,
+            pages: pages,
+            isAuthenticated: req.session.isAuthenticated, 
+            user: req.session.user });
 
         console.log('The data from orders table: \n', orderRows);
     } catch (err) {
@@ -270,15 +317,42 @@ export const viewall = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
-        const query = 'SELECT orders.*, users.email FROM orders JOIN users ON orders.author_id = users.id';
+
+        let page = Number(req.query.page) || 1;
+        let limit = 5;
+        let offset = (page - 1) * limit;
+
+        const query = `SELECT orders.*, users.email FROM orders JOIN users ON orders.author_id = users.id LIMIT ${limit} OFFSET ${offset}`;
         const [orderRows, orderFields] = await connection.query(query);
+
+        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders');
+        let totalPages = Math.ceil(totalRows[0].total / limit);
+        let pages = Array.from({length: totalPages}, (_, i) => {
+            return {
+                number: i + 1,
+                isCurrent: i + 1 === page
+            };
+        });
+
         connection.release();
-        res.render('manage-orders', {title: 'Управление заказами', orders: orderRows, isAuthenticated: req.session.isAuthenticated, user: req.session.user });
+
+        res.render('manage-orders', {
+            title: 'Управление заказами',
+            orders: orderRows,
+            page: page,
+            totalPages: totalPages,
+            prevPage: page > 1 ? page - 1 : null,
+            nextPage: page < totalPages ? page + 1 : null,
+            pages: pages,
+            isAuthenticated: req.session.isAuthenticated,
+            user: req.session.user
+        });
         console.log('The data from orders table: \n', orderRows);
     } catch (err) {
         console.log(err);
     }
 };
+
 
 
 // USERS PART
@@ -288,15 +362,38 @@ export const viewall = async (req, res) => {
         try {
             const connection = await pool.getConnection();
             console.log('Connected as ID' + connection.threadId);
-            const query = 'SELECT * FROM orders WHERE author_id = ?';
+            let page = Number(req.query.page) || 1;
+            let limit = 5;
+            let offset = (page - 1) * limit;
+            const query = `SELECT * FROM orders WHERE author_id = ? LIMIT ${limit} OFFSET ${offset}`;
             const [rows, fields] = await connection.query(query, [req.session.user.id]);
+
+            const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders WHERE author_id = ?', [req.session.user.id]);
+            let totalPages = Math.ceil(totalRows[0].total / limit);
+            let pages = Array.from({length: totalPages}, (_, i) => {
+            return {
+                number: i + 1,
+                isCurrent: i + 1 === page
+            };
+            });
+
             connection.release();
-            res.render('myorders', {title: 'Мои заказы', rows, isAuthenticated: req.session.isAuthenticated });
+            res.render('myorders', {
+                title: 'Мои заказы', 
+                rows,
+                page: page,
+                totalPages: totalPages,
+                prevPage: page > 1 ? page - 1 : null,
+                nextPage: page < totalPages ? page + 1 : null,
+                pages: pages,
+                isAuthenticated: req.session.isAuthenticated
+             });
             console.log('The data from orders table: \n', rows);
         } catch (err) {
             console.log(err);
         }
     };
+
 
 //find order by search
 export const findOrders = async (req, res) => {

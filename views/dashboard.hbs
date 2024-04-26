@@ -50,3 +50,18 @@
     {{/each}}
   </tbody>
 </table>
+<div class="pagination center">
+  {{#if prevPage}}
+    <a href="/dashboard?page={{prevPage}}">«</a>
+  {{/if}}
+    {{#each pages}}
+        {{#if isCurrent}}
+            <a class="active" href="/dashboard?page={{number}}">{{number}}</a>
+        {{else}}
+            <a href="/dashboard?page={{number}}">{{number}}</a>
+        {{/if}}
+    {{/each}}
+  {{#if nextPage}}
+    <a href="/dashboard?page={{nextPage}}">»</a>
+  {{/if}}
+</div>

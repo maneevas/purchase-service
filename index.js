@@ -59,6 +59,13 @@ const hbs = exphbs.create({
     },
 });
 
+hbs.handlebars.registerHelper('ifeq', function(a, b, options) {
+    if (a == b) {
+      return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
 app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views','views');

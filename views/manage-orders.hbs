@@ -38,3 +38,22 @@
     {{/each}}
 </tbody>
 </table>
+<div class="pagination center">
+  {{#if prevPage}}
+    <a href="/manageorders?page={{prevPage}}">«</a>
+  {{/if}}
+    {{#each pages}}
+        {{#if isCurrent}}
+            <a class="active" href="/manageorders?page={{number}}">{{number}}</a>
+        {{else}}
+            <a href="/manageorders?page={{number}}">{{number}}</a>
+        {{/if}}
+    {{/each}}
+  {{#if nextPage}}
+    <a href="/manageorders?page={{nextPage}}">»</a>
+  {{/if}}
+</div>
+
+
+
+

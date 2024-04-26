@@ -14,7 +14,7 @@
 </div>
 <div class="view-user p-5">
   {{#with viewedUser}}
-  <div class="row mb-5">
+  <div>
     <div class="col text-center">
       <h3>{{this.surname}} {{this.name}} {{this.patname}}</h3>
     </div>
@@ -26,7 +26,7 @@
   </ol>
 </nav>
   {{/with}}
-  <div class="row">
+  <div class="row" style="margin-bottom: -45px;">
     <div class="col">
       <table class="table">
         <thead>
@@ -58,4 +58,20 @@
     </div>
   </div>
 </div>
+
+<div class="pagination center">
+  {{#if prevPage}}
+    <a href="/dashboard/vieworder/{{../viewedUser.id}}?page={{prevPage}}">«</a>
+  {{/if}}
+    {{#each pages}}
+        {{#if isCurrent}}
+            <a class="active" href="/dashboard/vieworder/{{../viewedUser.id}}?page={{number}}">{{number}}</a>
+        {{else}}
+            <a href="/dashboard/vieworder/{{../viewedUser.id}}?page={{number}}">{{number}}</a>
+        {{/if}}
+    {{/each}}
+  {{#if nextPage}}
+    <a href="/dashboard/vieworder/{{../viewedUser.id}}?page={{nextPage}}">»</a>
+  {{/if}}
 </div>
+

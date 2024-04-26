@@ -1,0 +1,25 @@
+/*pagination*/
+
+/* links for splitting at pages */
+.pagination a {
+    color: black;
+    display: inline-block;
+    padding: 8px 16px;
+    text-decoration: none;
+    transition: background-color .3s;
+}
+  
+/* active link */
+.pagination a.active {
+    background-color: rgb(33, 37, 41);
+    color: white;
+}
+  
+/* hovering the link */
+.pagination a:hover:not(.active) {background-color: #ddd;}
+
+/* centering */
+.pagination.center {
+    display: flex;
+    justify-content: center;
+}
