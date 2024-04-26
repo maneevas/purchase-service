@@ -402,6 +402,46 @@ export const viewall = async (req, res) => {
     }
 };
 
+//find specifiс orders for admin
+export const findOrdersAdmin = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        let searchTerm = req.body.search;
+
+        let page = Number(req.query.page) || 1;
+        let limit = 5;
+        let offset = (page - 1) * limit;
+
+        const query = `SELECT orders.*, users.email FROM orders JOIN users ON orders.author_id = users.id WHERE orders.status = ? LIMIT ${limit} OFFSET ${offset}`;
+        const [rows, fields] = await connection.query(query, [searchTerm]);        
+
+        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders WHERE status LIKE ?', ['%' + searchTerm + '%']);
+        let totalPages = Math.ceil(totalRows[0].total / limit);
+        let pages = Array.from({length: totalPages}, (_, i) => {
+            return {
+                number: i + 1,
+                isCurrent: i + 1 === page
+            };
+        });
+
+        connection.release();
+
+        res.render('manage-orders', {
+            title: 'Все заказы', 
+            orders: rows, 
+            page: page,
+            totalPages: totalPages,
+            prevPage: page > 1 ? page - 1 : null,
+            nextPage: page < totalPages ? page + 1 : null,
+            pages: pages,
+            isAuthenticated: req.session.isAuthenticated,
+            user: req.session.user });
+        console.log('The data from orders table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
 
 
 // USERS PART
