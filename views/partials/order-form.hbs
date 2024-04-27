@@ -1,29 +1,37 @@
  
-  <div class="col-6">
-        <div class="form-floating mb-3">
+  <div class="col-12 d-flex justify-content-center">
+        <div class="form-floating mb-3" style="width: 500px;">
             <input type="text" class="form-control" id="floatingInput" value="{{this.good}}" placeholder="Название" name="good">
             <label for="floatingInput">Название</label>
         </div>
     </div>
-        <div class="col-6">
-        <div class="form-floating mb-3">
+        <div class="col-12 d-flex justify-content-center">
+        <div class="form-floating mb-3" style="width: 500px;">
             <input type="number" min="1" max="20" class="form-control" id="floatingInput" value="{{this.quantity}}" placeholder="Количество" name="quantity">
             <label for="floatingInput">Количество</label>
         </div>
     </div>
-        <div class="col-6">
-        <div class="form-floating mb-3">
+        <div class="col-12 d-flex justify-content-center">
+        <div class="form-floating mb-3" style="width: 500px;">
+            <input type="text" class="form-control" id="floatingInput" value="{{this.price}}" placeholder="Стоимость" name="price">
+            <label for="floatingInput">Стоимость</label>
+        </div>
+    </div>
+        <div class="col-12 d-flex justify-content-center">
+        <div class="form-floating mb-3" style="width: 500px;">
             <input type="url" class="form-control" id="floatingInput" value="{{this.link}}" placeholder="Ссылка" name="link">
             <label for="floatingInput">Ссылка</label>
         </div>
     </div>
-    <div class="col-6">
-        <div class="form-floating mb-3">
+    <div class="col-12 d-flex justify-content-center">
+        <div class="form-floating mb-3" style="width: 500px;">
             <input type="date" class="form-control" id="floatingInput" value="{{formatDate this.arrival_date}}" placeholder="Желаемая дата доставки" name="arrival_date">
             <label for="floatingInput">Желаемая дата доставки</label>
         </div>
     </div>
 
-    <div class="col-12 d-grid">
-        <button class="btn btn-primary" type="submit">Сохранить</button>
+    <div class="col-12 d-flex justify-content-center">
+        <div>
+            <button class="btn btn-primary" type="submit">Сохранить</button>
+        </div>
     </div>

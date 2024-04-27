@@ -1,5 +1,5 @@
 <div class="row" style="padding-top: 80px;">
-    <div class="col-12"><h2>Оформить новый заказ</h2></div>
+    <div class="col-12 d-flex justify-content-center"><h2>Оформить новый заказ</h2></div>
 </div>
 {{#if alert}}
 <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -7,12 +7,14 @@
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {{/if}}
-  <nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/myorders">Мои заказы</a></li>
-    <li class="breadcrumb-item active" aria-current="page">Оформление заказа</li>
-  </ol>
-</nav>
+<div class="col-12 d-flex justify-content-center">
+    <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="/myorders">Мои заказы</a></li>
+      <li class="breadcrumb-item active" aria-current="page">Оформление заказа</li>
+    </ol>
+  </nav>
+</div>
 <form action="/myorders/addorder" class="row g-3 needs-validation" method="POST" novalidate>
     {{> order-form}}
 </form>

@@ -22,6 +22,7 @@
     <tr>
       <th scope="col">Название</th>
       <th scope="col">Количество</th>
+      <th scope="col">Стоимость</th>
       <th scope="col">Ссылка</th>
       <th scope="col">Дата оформления заказа</th>
       <th scope="col">Желаемая дата доставки</th>
@@ -35,6 +36,7 @@
     <tr>
       <td>{{this.good}}</td>
       <td>{{this.quantity}}</td>
+      <td>{{this.price}} руб.</td>
       <td><a href="{{this.link}}">{{this.link}}</a></td>
       <td>{{formatDate this.creation_date}}</td>
       <td>{{formatDate this.arrival_date}}</td>

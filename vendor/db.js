@@ -287,12 +287,15 @@ export const editOrderAdmin = async (req, res) => {
 };
 
 export const updateOrderAdmin = async (req, res) => {
-    const { quantity, link, status } = req.body;
+    const { quantity, price, link, status } = req.body;
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
-        const query = 'UPDATE orders SET quantity = ?, link =?, status = ? WHERE id = ?';
-        await connection.query(query, [quantity, link, status, req.params.id]);
+        const query = 'UPDATE orders SET quantity = ?, price = ?, link =?, status = ? WHERE id = ?';
+        await connection.query(query, [quantity, price, link, status, req.params.id]);
+
+        const [priceCountRows] = await connection.query('SELECT SUM(price) as price_count FROM orders');
+        let price_count = priceCountRows[0].price_count;
 
         let page = Number(req.query.page) || 1;
         let limit = 5;
@@ -320,6 +323,7 @@ export const updateOrderAdmin = async (req, res) => {
             prevPage: page > 1 ? page - 1 : null,
             nextPage: page < totalPages ? page + 1 : null,
             pages: pages,
+            price_count: price_count,
             isAuthenticated: req.session.isAuthenticated,
             user: req.session.user
         });
@@ -373,6 +377,8 @@ export const viewall = async (req, res) => {
 
         const query = `SELECT orders.*, users.email FROM orders JOIN users ON orders.author_id = users.id LIMIT ${limit} OFFSET ${offset}`;
         const [orderRows, orderFields] = await connection.query(query);
+        const [priceCountRows] = await connection.query('SELECT SUM(price) as price_count FROM orders');
+        let price_count = priceCountRows[0].price_count;
 
         const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders');
         let totalPages = Math.ceil(totalRows[0].total / limit);
@@ -384,7 +390,6 @@ export const viewall = async (req, res) => {
         });
 
         connection.release();
-
         res.render('manage-orders', {
             title: 'Управление заказами',
             orders: orderRows,
@@ -394,13 +399,15 @@ export const viewall = async (req, res) => {
             nextPage: page < totalPages ? page + 1 : null,
             pages: pages,
             isAuthenticated: req.session.isAuthenticated,
-            user: req.session.user
+            user: req.session.user,
+            price_count: price_count
         });
         console.log('The data from orders table: \n', orderRows);
     } catch (err) {
         console.log(err);
     }
 };
+
 
 //find specifiс orders for admin
 export const findOrdersAdmin = async (req, res) => {
@@ -531,13 +538,13 @@ export const formOrder = (req, res) => {
 
 //add new order
 export const createOrder = async (req, res) => {
-    const { good, quantity, link, arrival_date } = req.body;
+    const { good, quantity, price, link, arrival_date } = req.body;
     const author_id = req.session.user.id;
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
-        const query = 'INSERT INTO orders SET good = ?, quantity = ?, link = ?, creation_date = NOW(), arrival_date = ?, author_id = ?, status = "На рассмотрении"';
-        await connection.query(query, [good, quantity, link, arrival_date, author_id]);
+        const query = 'INSERT INTO orders SET good = ?, quantity = ?, price = ?, link = ?, creation_date = NOW(), arrival_date = ?, author_id = ?, status = "На рассмотрении"';
+        await connection.query(query, [good, quantity, price, link, arrival_date, author_id]);
         connection.release();
 
         const connection2 = await pool.getConnection();
@@ -592,12 +599,12 @@ export const editOrder = async (req, res) => {
 
 //update order
 export const updateOrder = async (req, res) => {
-    const { good, quantity, link, arrival_date } = req.body;
+    const { good, quantity, price, link, arrival_date } = req.body;
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
-        const query = 'UPDATE orders SET good = ?, quantity = ?, link =?, arrival_date = ? WHERE id = ?';
-        await connection.query(query, [good, quantity, link, arrival_date, req.params.id]);
+        const query = 'UPDATE orders SET good = ?, quantity = ?, price = ?, link =?, arrival_date = ? WHERE id = ?';
+        await connection.query(query, [good, quantity, price, link, arrival_date, req.params.id]);
         connection.release();
 
         const connection2 = await pool.getConnection();

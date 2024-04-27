@@ -5,16 +5,18 @@
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {{/if}}
-    <div class="col-12" style="margin-bottom: -35px;"><h1>Управление заказами</h1>
-      <div class="col-12 d-flex justify-content-start align-items-center">
-        <form class="d-flex" method="POST" action="/manageorders" novalidate>
-            <input class="form-control me-2" type="search" placeholder="Ключевое слово" name="search" style="width: 150px;" aria-label="Search">
-            <button class="btn btn-outline-dark" type="submit">Найти</button>
-        </form>
+<div class="col-12" style="margin-bottom: -35px;"><h1>Управление заказами</h1>
+  <div class="col-12 d-flex justify-content-start align-items-center">
+    <form class="d-flex" method="POST" action="/manageorders" novalidate>
+        <input class="form-control me-2" type="search" placeholder="Введите статус" name="search" style="width: 150px;" aria-label="Search">
+        <button class="btn btn-outline-dark" type="submit">Найти</button>
+    </form>
+    <div style="position: absolute; right: 100px;background-color: rgb(215, 215, 215);color: rgb(0, 0, 0);padding: 6px 14px;">
+      <h5>Итого:⠀{{this.price_count}} руб.</h5>
     </div>
-    </div>
+  </div>
 </div>
-
+</div>
 
 <table class="table table-boarded">
   <thead class="thead-dark">
@@ -22,6 +24,7 @@
       <th scope="col">Автор</th>
       <th scope="col">Товар</th>
       <th scope="col">Количество</th>
+      <th scope="col">Стоимость</th>
       <th scope="col">Ссылка на товар</th>
       <th scope="col">Дата оформления заказа</th>
       <th scope="col">Желаемая дата доставки</th>
@@ -34,6 +37,7 @@
         <td><a href="/dashboard/vieworder/{{this.author_id}}">{{this.email}}</a></td>
         <td>{{this.good}}</td>
         <td>{{this.quantity}}</td>
+        <td>{{this.price}} руб.</td>
         <td><a href="{{this.link}}">{{this.link}}</a></td>
         <td>{{formatDate this.creation_date}}</td>
         <td>{{formatDate this.arrival_date}}</td>
