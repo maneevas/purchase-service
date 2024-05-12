@@ -18,7 +18,7 @@ import { config } from 'dotenv';
 import { resolve } from 'path';
 config({ path: resolve(__dirname, '.env') });
 
-import {register,login,view,find,form,create,edit,update,deleteUser,viewall,vieworder,myorders,findOrders,findOrdersAdmin,formOrder,createOrder,editOrder,updateOrder,editOrderAdmin,updateOrderAdmin,deleteOrder} from './vendor/db.js'
+import {register,login,view,find,form,create,edit,update,deleteUser,viewall,viewarchive,vieworder,myorders,findOrders,findOrdersAdmin,updateOrderStatus,formOrder,createOrder,editOrder,updateOrder,editOrderAdmin,updateOrderAdmin,deleteOrder} from './vendor/db.js'
 
 const app = express();
 app.use(expressSession({
@@ -162,11 +162,13 @@ app.post('/dashboard/edituser/:id', ensureAuthenticated, ensureAdmin, update);
 app.get('/dashboard/vieworder/:id', ensureAuthenticated, ensureAdmin, vieworder);
 app.get('/dashboard/:id', ensureAuthenticated, ensureAdmin, deleteUser);
 
+app.get('/ordersarchive', ensureAuthenticated, ensureAdmin, viewarchive);
 
 app.get('/manageorders', ensureAuthenticated, ensureAdmin, viewall);
 app.post('/manageorders', ensureAuthenticated, ensureAdmin, findOrdersAdmin);
 app.get('/manageorders/editorderadmin/:id', ensureAuthenticated, ensureAdmin, editOrderAdmin);
 app.post('/manageorders/editorderadmin/:id', ensureAuthenticated, ensureAdmin, updateOrderAdmin);
+app.post('/updateOrderStatus/:id', ensureAuthenticated, ensureAdmin, updateOrderStatus);
 app.get('/manageorders/deleteorderadmin/:id', ensureAuthenticated, ensureAdmin, deleteOrder);
 
 app.get('/myorders', ensureAuthenticated, ensureUser, myorders);

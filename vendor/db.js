@@ -287,12 +287,12 @@ export const editOrderAdmin = async (req, res) => {
 };
 
 export const updateOrderAdmin = async (req, res) => {
-    const { quantity, price, link, status } = req.body;
+    const { quantity, price, link } = req.body;
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
-        const query = 'UPDATE orders SET quantity = ?, price = ?, link =?, status = ? WHERE id = ?';
-        await connection.query(query, [quantity, price, link, status, req.params.id]);
+        const query = 'UPDATE orders SET quantity = ?, price = ?, link =? WHERE id = ?';
+        await connection.query(query, [quantity, price, link, req.params.id]);
 
         const [priceCountRows] = await connection.query('SELECT SUM(price) as price_count FROM orders');
         let price_count = priceCountRows[0].price_count;
@@ -316,7 +316,7 @@ export const updateOrderAdmin = async (req, res) => {
         connection.release();
 
         res.render('manage-orders', {
-            title: 'Управление заказами',
+            title: 'Активные заказы',
             orders: orderRows,
             page: page,
             totalPages: totalPages,
@@ -333,6 +333,54 @@ export const updateOrderAdmin = async (req, res) => {
     }
 };
 
+// update order status
+export const updateOrderStatus = async (req, res) => {
+    const { status } = req.body;
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'UPDATE orders SET status = ? WHERE id = ?';
+        await connection.query(query, [status, req.params.id]);
+
+        const [priceCountRows] = await connection.query('SELECT SUM(price) as price_count FROM orders');
+        let price_count = priceCountRows[0].price_count;
+
+        let page = Number(req.query.page) || 1;
+        let limit = 5;
+        let offset = (page - 1) * limit;
+
+        const query2 = `SELECT orders.*, users.email FROM orders JOIN users ON orders.author_id = users.id LIMIT ${limit} OFFSET ${offset}`;
+        const [orderRows, orderFields] = await connection.query(query2);
+
+        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders');
+        let totalPages = Math.ceil(totalRows[0].total / limit);
+        let pages = Array.from({length: totalPages}, (_, i) => {
+            return {
+                number: i + 1,
+                isCurrent: i + 1 === page
+            };
+        });
+
+        connection.release();
+
+        res.render('manage-orders', {
+            title: 'Активные заказы',
+            orders: orderRows,
+            page: page,
+            totalPages: totalPages,
+            prevPage: page > 1 ? page - 1 : null,
+            nextPage: page < totalPages ? page + 1 : null,
+            pages: pages,
+            price_count: price_count,
+            isAuthenticated: req.session.isAuthenticated,
+            user: req.session.user
+        });
+    } catch (err) {
+        console.log(err);
+        const errorMessage = encodeURIComponent('Произошла ошибка при обновлении статуса заказа');
+        res.status(500).send({ message: errorMessage });
+    }
+};
 
 
 // delete order
@@ -365,8 +413,8 @@ export const deleteOrder = async (req, res) => {
     }
 };
 
-//show orders on manage-orders page
-export const viewall = async (req, res) => {
+//show archive orders
+export const viewarchive = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
@@ -375,12 +423,12 @@ export const viewall = async (req, res) => {
         let limit = 5;
         let offset = (page - 1) * limit;
 
-        const query = `SELECT orders.*, users.email FROM orders JOIN users ON orders.author_id = users.id LIMIT ${limit} OFFSET ${offset}`;
+        const query = `SELECT orders.*, users.email FROM orders JOIN users ON orders.author_id = users.id WHERE orders.status = 'Получен' LIMIT ${limit} OFFSET ${offset}`;
         const [orderRows, orderFields] = await connection.query(query);
-        const [priceCountRows] = await connection.query('SELECT SUM(price) as price_count FROM orders');
+        const [priceCountRows] = await connection.query('SELECT SUM(price) as price_count FROM orders WHERE status = "Получен"');
         let price_count = priceCountRows[0].price_count;
 
-        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders');
+        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders WHERE status = "Получен"');
         let totalPages = Math.ceil(totalRows[0].total / limit);
         let pages = Array.from({length: totalPages}, (_, i) => {
             return {
@@ -390,8 +438,8 @@ export const viewall = async (req, res) => {
         });
 
         connection.release();
-        res.render('manage-orders', {
-            title: 'Управление заказами',
+        res.render('orders-archive', {
+            title: 'Архив заказов',
             orders: orderRows,
             page: page,
             totalPages: totalPages,
@@ -407,6 +455,49 @@ export const viewall = async (req, res) => {
         console.log(err);
     }
 };
+
+//show orders on manage-orders page
+export const viewall = async (req, res) => {
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+
+        let page = Number(req.query.page) || 1;
+        let limit = 10;
+        let offset = (page - 1) * limit;
+        const query = `SELECT orders.*, users.email FROM orders JOIN users ON orders.author_id = users.id WHERE orders.status != 'Получен' LIMIT ${limit} OFFSET ${offset}`;
+        const [orderRows, orderFields] = await connection.query(query);
+        const [priceCountRows] = await connection.query('SELECT SUM(price) as price_count FROM orders WHERE status != "Получен"');
+        let price_count = priceCountRows[0].price_count;
+
+        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders WHERE status != "Получен"');
+        let totalPages = Math.ceil(totalRows[0].total / limit);
+        let pages = Array.from({length: totalPages}, (_, i) => {
+            return {
+                number: i + 1,
+                isCurrent: i + 1 === page
+            };
+        });
+
+        connection.release();
+        res.render('manage-orders', {
+            title: 'Активные заказы',
+            orders: orderRows,
+            page: page,
+            totalPages: totalPages,
+            prevPage: page > 1 ? page - 1 : null,
+            nextPage: page < totalPages ? page + 1 : null,
+            pages: pages,
+            isAuthenticated: req.session.isAuthenticated,
+            user: req.session.user,
+            price_count: price_count
+        });
+        console.log('The data from orders table: \n', orderRows);
+    } catch (err) {
+        console.log(err);
+    }
+};
+
 
 
 //find specifiс orders for admin

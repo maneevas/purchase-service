@@ -1,45 +1,48 @@
-<nav class="navbar navbar-dark bg-dark fixed-top">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/" style="padding-left: 20px; font-size: 24px;">SimpleBuy</a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasDarkNavbar" aria-controls="offcanvasDarkNavbar" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+  <div class="container-fluid" style="font-size: 17px;">
+    <ul class="navbar-nav">
+        {{#if isAuthenticated}}
+            {{#if user.is_admin}}
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page"  href="/manageorders">Активные заказы</a>
+                </li>
+            {{else}}
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/myorders">Мои заказы</a>
+                </li>
+            {{/if}}
+        {{else}}
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/">Главная</a>
+            </li>
+        {{/if}}
+    </ul>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
-    <div class="offcanvas offcanvas-end text-bg-dark" tabindex="-1" id="offcanvasDarkNavbar" aria-labelledby="offcanvasDarkNavbarLabel" style="max-width: 300px;">
-      <div class="offcanvas-header">
-        <h5 class="offcanvas-title" id="offcanvasDarkNavbarLabel">Меню</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-      </div>
-      <div class="offcanvas-body">
-        <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
-           <li class="nav-item">
-            <a class="nav-link active" aria-current="page" href="/">Главная страница</a>
-          </li>           
-          {{#if isAuthenticated}}
-              {{#if user.is_admin}}
-                  <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="/manageorders">Управление заказами</a>
-                  </li>
-                  <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="/dashboard">База данных</a>
-                  </li>
-              {{else}}
-                  <li class="nav-item">
-                      <a class="nav-link active" aria-current="page" href="/myorders">Мои заказы</a>
-                  </li>
-              {{/if}}
-              <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="/logout">Выйти</a>
-              </li>
-          {{else}}
-              <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="/register">Зарегистрироваться</a>
-              </li>
-              <li class="nav-item">
-                  <a class="nav-link active" aria-current="page" href="/login">Войти</a>
-              </li>              
-          {{/if}}
-        </ul>
-      </div>
+    <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+      <ul class="navbar-nav">
+        {{#if isAuthenticated}}
+            {{#if user.is_admin}}
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/ordersarchive">Архив заказов</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="/dashboard">База данных</a>
+                </li>
+            {{/if}}
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/logout">Выход</a>
+            </li>
+        {{else}}
+        <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/login">Вход</a>
+            </li> 
+            <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="/register">Регистрация</a>
+            </li>             
+        {{/if}}
+      </ul>
     </div>
   </div>
 </nav>

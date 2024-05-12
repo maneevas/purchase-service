@@ -5,10 +5,10 @@
   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 {{/if}}
-<div class="col-12" style="margin-bottom: -35px;"><h1>Управление заказами</h1>
+<div class="col-12" style="margin-bottom: -35px;"><h1>Активные заказы</h1>
   <div class="col-12 d-flex justify-content-start align-items-center">
     <form class="d-flex" method="POST" action="/manageorders" novalidate>
-        <input class="form-control me-2" type="search" placeholder="Введите статус" name="search" style="width: 150px;" aria-label="Search">
+        <input class="form-control me-2" type="search" placeholder="Поиск по статусу" name="search" style="width: 150px;" aria-label="Search">
         <button class="btn btn-outline-dark" type="submit">Найти</button>
     </form>
     <div style="position: absolute; right: 100px;background-color: rgb(215, 215, 215);color: rgb(0, 0, 0);padding: 6px 14px;">
@@ -28,8 +28,8 @@
       <th scope="col">Ссылка на товар</th>
       <th scope="col">Дата оформления заказа</th>
       <th scope="col">Желаемая дата доставки</th>
+      <th scope="col" class="text-end"></th>
       <th scope="col">Статус</th>
-      <th scope="col" class="text-end">Действия</th>
     </tr>
   </thead>
 <tbody>
@@ -41,11 +41,25 @@
         <td><a href="{{this.link}}">{{this.link}}</a></td>
         <td>{{formatDate this.creation_date}}</td>
         <td>{{formatDate this.arrival_date}}</td>
-        <td>{{this.status}}</td>
         <td class="text-end">
-            <a href="/manageorders/editorderadmin/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-pencil"></i>Изменить</a>
-            <a href="/manageorders/deleteorderadmin/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-trash"></i>Завершить</a>
+            <a href="/manageorders/editorderadmin/{{this.id}}" type="button" class="btn btn-light btn-small"><i class="bi bi-pencil"></i>Изменить данные</a>
         </td>
+        <td>
+    <form action="/updateOrderStatus/{{this.id}}" method="POST">
+        <div class="form-floating" style="width: 150px;">
+            <select class="form-control" id="floatingSelect" name="status" style="padding: 0;">
+                <option value="" {{#unless this.status}}selected{{/unless}}>Выберите статус</option>
+                <option value="На рассмотрении" {{#if (eq this.status "На рассмотрении")}}selected{{/if}}>На рассмотрении</option>
+                <option value="Закупаем" {{#if (eq this.status "Закупаем")}}selected{{/if}}>Закупаем</option>
+                <option value="Доставляем" {{#if (eq this.status "Доставляем")}}selected{{/if}}>Доставляем</option>
+                <option value="Ожидает получения" {{#if (eq this.status "Ожидает получения")}}selected{{/if}}>Ожидает получения</option>
+                <option value="Получен" {{#if (eq this.status "Получен")}}selected{{/if}}>Получен</option>
+            </select>
+            <button type="submit" class="btn btn-light btn-small"><i class="bi bi-pencil"></i> Обновить</button>
+        </div>
+    </form>
+</td>
+
     {{/each}}
 </tbody>
 </table>
@@ -64,7 +78,3 @@
     <a href="/manageorders?page={{nextPage}}">»</a>
   {{/if}}
 </div>
-
-
-
-
