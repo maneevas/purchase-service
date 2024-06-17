@@ -2,7 +2,6 @@ console.log(`Current directory: ${process.cwd()}`);
 
 import express from 'express'
 import exphbs from 'express-handlebars'
-import bodyParser from 'body-parser'
 import mysql from 'mysql2/promise';
 import passport from 'passport'
 import expressSession from 'express-session'
@@ -10,8 +9,10 @@ import expressSession from 'express-session'
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
+import bodyParser from 'body-parser';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
 
 
 import { config } from 'dotenv';
@@ -35,6 +36,8 @@ const port = process.env.PORT || 5000;
 // parsing middleware
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+
+import { body, validationResult } from 'express-validator';
 
 //static stuff
 app.use(express.static('public'));
@@ -141,7 +144,23 @@ app.get('/login', redirectIfAuthenticated, (req, res) => {
     res.render('login', { title: 'Вход' });
 });
 
-app.post('/login', login);
+app.post('/login',
+    body('password').isLength({ min: 6 }).withMessage('Пароль должен содержать не менее 6 символов!'),
+    (req, res) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            const errorMsg = errors.array().map(e => e.msg).join(', ');
+
+            return res.render('login', {
+                title: 'Вход',
+                alert: errorMsg
+            });
+        }
+
+        login(req, res);
+    });
+
 
 app.get('/logout', (req, res) => {
     req.session.destroy(function(err) {
