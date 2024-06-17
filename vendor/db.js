@@ -230,7 +230,7 @@ export const deleteUser = async (req, res) => {
 };
 
  //view specific orders
- export const vieworder = async (req, res) => {
+export const vieworder = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
@@ -242,7 +242,8 @@ export const deleteUser = async (req, res) => {
         const query = 'SELECT * FROM users WHERE id = ?';
         const [userRows, userFields] = await connection.query(query, [req.params.id]);
 
-        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders WHERE author_id = ?', [req.params.id]);
+        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM orders WHERE author_id = ? AND status != "Получен"', [req.params.id]);
+        
         let totalPages = Math.ceil(totalRows[0].total / limit);
 
         let pages = Array.from({length: totalPages}, (_, i) => {
@@ -253,7 +254,7 @@ export const deleteUser = async (req, res) => {
         });
 
         console.log('The data from users table: \n', userRows);
-        const query2 = `SELECT * FROM orders WHERE author_id = ? LIMIT ${limit} OFFSET ${offset}`;
+        const query2 = `SELECT * FROM orders WHERE author_id = ? AND status != 'Получен' LIMIT ${limit} OFFSET ${offset}`;
         const [orderRows, orderFields] = await connection.query(query2, [req.params.id]);
         connection.release();
         res.render('view-order', {
