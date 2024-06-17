@@ -1,22 +1,26 @@
-<div class="row" style="padding-top: 80px;">
-{{#if removedMessage}}
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-{{removedMessage}}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{{/if}}
-<div class="col-12" style="margin-bottom: -35px;"><h1>Активные заказы</h1>
-  <div class="col-12 d-flex justify-content-start align-items-center">
-    <form class="d-flex" method="POST" action="/manageorders" novalidate>
-        <input class="form-control me-2" type="search" placeholder="Поиск по статусу" name="search" style="width: 150px;" aria-label="Search">
-        <button class="btn btn-outline-dark" type="submit">Найти</button>
-    </form>
-    <div style="position: absolute; right: 100px;background-color: rgb(215, 215, 215);color: rgb(0, 0, 0);padding: 6px 14px;">
+<div class="container" style="padding-top: 80px;">
+  {{#if removedMessage}}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{removedMessage}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+  </div>
+  {{/if}}
+  <div class="row align-items-center">
+    <div class="col-md-6"><h1>Активные заказы</h1></div>
+    <div class="col-md-6 d-flex justify-content-end">
       <h5>Итого:⠀{{this.price_count}} руб.</h5>
     </div>
   </div>
-</div>
-</div>
+  <div class="row">
+    <div class="col-12">
+      <form class="d-flex" method="POST" action="/manageorders" novalidate>
+        <input class="form-control me-2" type="search" placeholder="Поиск по статусу" name="search" aria-label="Search">
+        <button class="btn btn-outline-dark" type="submit">Найти</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="snackbar">{{alert}}</div>
 
 <table class="table table-boarded">
   <thead class="thead-dark">
@@ -78,3 +82,13 @@
     <a href="/manageorders?page={{nextPage}}">»</a>
   {{/if}}
 </div>
+
+<script src="/javascript/snackbar.js"></script>
+<script>
+  if ("{{alert}}") {
+    var message = "{{alert}}";
+    if (message !== undefined && message !== null) {
+      snackBAR(message);
+    }
+  }
+</script>

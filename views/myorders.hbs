@@ -63,3 +63,15 @@
     <a href="/myorders?page={{nextPage}}">»</a>
   {{/if}}
 </div>
+
+<div id="snackbar">{{alert}}</div>
+
+<script src="/javascript/snackbar.js"></script>
+<script>
+  if ("{{alert}}") {
+    var message = "{{alert}}";
+    if (message !== undefined && message !== null) {
+      snackBAR(message);
+    }
+  }
+</script>

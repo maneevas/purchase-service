@@ -1,11 +1,4 @@
 <div class="row" style="padding-top: 80px;">
-{{#if removedMessage}}
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-{{removedMessage}}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{{/if}}
-
     <div class="col-12"><h1>База данных</h1></div>
     <div class="col-12 d-flex justify-content-start align-items-center">
         <a href="/dashboard/adduser" type="button" class="btn btn-primary me-2">Добавить</a>
@@ -65,3 +58,15 @@
     <a href="/dashboard?page={{nextPage}}">»</a>
   {{/if}}
 </div>
+
+<div id="snackbar">{{alert}}</div>
+<script src="/javascript/snackbar.js"></script>
+<script>
+  var message = "{{alert}}";
+  if (!message) {
+    message = new URL(window.location.href).searchParams.get('error');
+  }
+  if (message !== undefined && message !== null) {
+    snackBAR(message);
+  }
+</script>

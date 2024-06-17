@@ -13,10 +13,10 @@ export const register = async (req, res) => {
         const result = await pool.execute(query, [surname, name, patname, location, email, password]);
         if (result) {
             const [rows, fields] = result;
-            res.render('login', { alert: 'Пользователь успешно создан! Теперь вы можете войти.' });
+            res.render('login', { alert: 'Аккаунт успешно создан! Теперь вы можете войти.' });
             console.log('The data from users table: \n', rows);
         } else {
-            console.log('Ошибка: результат запроса к базе данных не определен');
+            console.log('Ошибка!');
         }
     } catch (err) {
         console.log(err);
@@ -54,7 +54,7 @@ export const login = async (req, res) => {
             }
             
         } else {
-            res.render('login', { alert: 'Неверный email или пароль.' });
+            res.render('login', { alert: 'Неверный email или пароль!' });
         }
         
         connection.release();
@@ -86,11 +86,11 @@ export const view = async (req, res) => {
         });
 
         connection.release();
-        let removedUser = req.query.removed;
+        let alert = req.query.removed;
         res.render('dashboard', {
             title: 'База данных', 
             rows, 
-            removedUser, 
+            alert, 
             page: page,
             totalPages: totalPages,
             prevPage: page > 1 ? page - 1 : null,
@@ -103,6 +103,7 @@ export const view = async (req, res) => {
         console.log(err);
     }
 };
+
 
 
 export const find = async (req, res) => {
@@ -151,21 +152,21 @@ export const form = (req, res) => {
 };
 
 
-    //add new user
-    export const create = async (req, res) => {
-        const { surname, name, patname, location, email, password} = req.body;
-        try {
-            const connection = await pool.getConnection();
-            console.log('Connected as ID' + connection.threadId);
-            const query = 'INSERT  INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
-            const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password]);
-            connection.release();
-            res.render('add-user', {title: 'Создание пользователя', alert: 'Пользователь успешно создан!', isAuthenticated: req.session.isAuthenticated, user: req.session.user });
-            console.log('The data from users table: \n', rows);
-        } catch (err) {
-            console.log(err);
-        }
-    };
+//add new user
+export const create = async (req, res) => {
+    const { surname, name, patname, location, email, password} = req.body;
+    try {
+        const connection = await pool.getConnection();
+        console.log('Connected as ID' + connection.threadId);
+        const query = 'INSERT  INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
+        const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password]);
+        connection.release();
+        res.render('add-user', {title: 'Создание пользователя', alert: 'Новый пользователь успешно создан!', isAuthenticated: req.session.isAuthenticated, user: req.session.user });
+        console.log('The data from users table: \n', rows);
+    } catch (err) {
+        console.log(err);
+    }
+};
 
 
  //edit user
@@ -198,7 +199,7 @@ export const update = async (req, res) => {
         const query2 = 'SELECT * FROM users WHERE id = ?';
         const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
         connection2.release();
-        res.render('edit-user', {title: 'Редактирование пользователя', rows: rows2, alert: 'Данные о пользователе успешно обновлены', isAuthenticated: req.session.isAuthenticated, user: req.session.user });
+        res.render('edit-user', {title: 'Редактирование пользователя', rows: rows2, alert: 'Данные пользователя успешно обновлены!', isAuthenticated: req.session.isAuthenticated, user: req.session.user });
         console.log('The data from users table: \n', rows2);
         
         console.log('The data from users table: \n', rows);
@@ -216,16 +217,17 @@ export const deleteUser = async (req, res) => {
         const query = 'DELETE FROM users WHERE id = ?';
         const [rows, fields] = await connection.query(query, [req.params.id]);
         connection.release();
-        
-        let removedMessage = encodeURIComponent('Пользователь успешно удален.')
-        res.redirect('/dashboard?removed=' + removedMessage);
-        
+        res.redirect('/dashboard?removed=Пользователь успешно удален!');
         console.log('The data from users table: \n', rows);
     } catch (err) {
         console.log(err);
+        if (err.code === 'ER_ROW_IS_REFERENCED_2') {
+            res.redirect('/dashboard?error=Удаление невозможно – у пользователя есть активные заказы!');
+        } else {
+            res.redirect('/dashboard?error=Произошла неизвестная ошибка...');
+        }
     }
 };
-
 
  //view specific orders
  export const vieworder = async (req, res) => {
@@ -324,6 +326,7 @@ export const updateOrderAdmin = async (req, res) => {
             nextPage: page < totalPages ? page + 1 : null,
             pages: pages,
             price_count: price_count,
+            alert: 'Данные заказа успешно обновлены!',
             isAuthenticated: req.session.isAuthenticated,
             user: req.session.user
         });
@@ -665,6 +668,7 @@ export const createOrder = async (req, res) => {
             prevPage: page > 1 ? page - 1 : null,
             nextPage: page < totalPages ? page + 1 : null,
             pages: pages,
+            alert: 'Новый заказ успешно добавлен!',
             isAuthenticated: req.session.isAuthenticated
         });
         console.log('The data from orders table: \n', rows2);
@@ -725,6 +729,7 @@ export const updateOrder = async (req, res) => {
             prevPage: page > 1 ? page - 1 : null,
             nextPage: page < totalPages ? page + 1 : null,
             pages: pages,
+            alert: 'Данные заказа успешно обновлены!',
             isAuthenticated: req.session.isAuthenticated
         });
         console.log('The data from orders table: \n', rows2);

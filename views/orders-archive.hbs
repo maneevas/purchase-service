@@ -1,15 +1,13 @@
-<div class="row" style="padding-top: 80px;">
-{{#if removedMessage}}
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-{{removedMessage}}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{{/if}}
-<div class="col-12" style="margin-bottom: -35px;"><h1>Архив заказов</h1>
-  <div class="col-12 d-flex justify-content-start align-items-center">
+<div class="container mt-5 pt-3">
+  {{#if removedMessage}}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    {{removedMessage}}
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
   </div>
-</div>
-</div>
+  {{/if}}
+  <div class="row">
+    <div class="col-12"><h1>Архив заказов</h1></div>
+  </div>
 
 <table class="table table-boarded">
   <thead class="thead-dark">
