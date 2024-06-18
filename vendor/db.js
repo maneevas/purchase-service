@@ -29,7 +29,7 @@ export const login = async (req, res) => {
 
     // check for null or undefined
     if (!email || !password) {
-        console.log('Ошибка: email или password не определены');
+        console.log('Ошибка: логин или пароль не определены');
         return;
     }
 
@@ -54,7 +54,7 @@ export const login = async (req, res) => {
             }
             
         } else {
-            res.render('login', { alert: 'Неверный email или пароль!' });
+            res.render('login', { alert: 'Неверный логин или пароль!' });
         }
         
         connection.release();

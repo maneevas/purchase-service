@@ -138,7 +138,30 @@ app.get('/register', redirectIfAuthenticated, (req, res) => {
     res.render('register', { title: 'Регистрация' });
 });
 
-app.post('/register', register);
+app.post('/register',
+    body('name').matches(/^[А-Яа-я]+$/).withMessage('Имя должно содержать только буквы!'),
+    body('surname').matches(/^[А-Яа-я]+$/).withMessage('Фамилия должна содержать только буквы!'),
+    body('patname').matches(/^[А-Яа-я]+$/).withMessage('Отчество должно содержать только буквы!'),
+    body('location').matches(/^[А-Яа-я]+$/).withMessage('Название города должно содержать только буквы!'),
+    body('email').isLength({ min: 6, max: 15 }).withMessage('Логин должен содержать от 6 до 15 символов!'),
+    body('password').isLength({ min: 6, max: 30 }).withMessage('Пароль должен содержать от 6 до 30 символов!'),
+    async (req, res) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            const errorMsg = errors.array().map(e => e.msg).join(' ');
+            return res.json({ status: 'error', alert: errorMsg });
+        }
+
+        try {
+            await register(req, res);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json({ status: 'error', alert: 'Ошибка сервера.' });
+        }
+    });
+
+
 
 app.get('/login', redirectIfAuthenticated, (req, res) => {
     res.render('login', { title: 'Вход' });

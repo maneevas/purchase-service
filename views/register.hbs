@@ -4,46 +4,64 @@
  <div class="container">
             <div class="row">
                 <div class="col-lg-6 col-8 mx-auto">
-                    <form action="/register" method="post">
+                    <form id="registerForm" name="registerForm" action="/register" method="post">
                         <div class="form-group">
                             <label for="name">Ваше имя</label>
-                            <input type="text" class="form-control" id="name" name="name" required>
+                            <input type="text" class="form-control" id="name" name="name" required minlength="2" maxlength="30">
                         </div>
                         <div class="form-group">
                             <label for="surname">Ваша фамилия</label>
-                            <input type="text" class="form-control" id="surname" name="surname" required>
+                            <input type="text" class="form-control" id="surname" name="surname" required minlength="2" maxlength="30">
                         </div>
                         <div class="form-group">
                             <label for="patname">Ваше отчество</label>
-                            <input type="text" class="form-control" id="patname" name="patname" required>
+                            <input type="text" class="form-control" id="patname" name="patname" required minlength="2" maxlength="30">
                         </div>
                             <div class="form-group">
                             <label for="location">Ваш город</label>
-                            <input type="text" class="form-control" id="location" name="location" required>
+                            <input type="text" class="form-control" id="location" name="location" required minlength="2" maxlength="30">
                         </div>
                         <div class="form-group">
                             <label for="text">Ваш логин</label>
-                            <input type="text" class="form-control" id="email" name="email" required>
+                            <input type="text" class="form-control" id="email" name="email" required minlength="6" maxlength="15">
                         </div>
                             <div class="form-group">
                             <label for="password">Ваш пароль</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
+                            <input type="password" class="form-control" id="password" name="password" required minlength="6" maxlength="30">
                         </div>
-                        <div style="padding-top: 20px;"><button type="submit" class="btn btn-dark">Зарегистрироваться</button></div>
+                        <div style="padding-top: 20px;"><button type="submit" id="submit" name="submit" class="btn btn-dark">Зарегистрироваться</button></div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
-    <div id="snackbar">{{alert}}</div>
-
+  <div id="snackbar"></div>
 <script src="/javascript/snackbar.js"></script>
 <script>
-  if ("{{alert}}") {
-    var message = "{{alert}}";
-    if (message !== undefined && message !== null) {
-      snackBAR(message);
+const registerForm = document.registerForm;
+
+registerForm.addEventListener("submit", function(event) {
+    if (!registerForm.reportValidity()) {
+        event.preventDefault();
+    } else {
+        var formData = new FormData(this);
+
+        fetch('/register', {
+            method: 'POST',
+            body: formData
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                return response.json().then(function(data) {
+                    throw new Error(data.alert);
+                });
+            }
+            snackBAR("Регистрация прошла успешно!");
+        })
+        .catch(function(error) {
+            snackBAR(error.message);
+        });
     }
-  }
+});
+
 </script>
