@@ -8,6 +8,17 @@ export const register = async (req, res) => {
     const { surname, name, patname, location, email, password } = req.body;
 
     try {
+        // check if the users email is unique
+        const checkQuery = 'SELECT * FROM users WHERE email = ?';
+        const [users] = await pool.execute(checkQuery, [email]);
+        if (users.length > 0) {
+            return res.render('register', {
+                title: 'Регистрация',
+                alert: 'Пользователь с таким логином уже существует!',
+                surname, name, patname, location, email
+            });
+        }
+
         const query = 'INSERT INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
         console.log('Выполняется SQL-запрос: ', query);
         const result = await pool.execute(query, [surname, name, patname, location, email, password]);
@@ -20,8 +31,13 @@ export const register = async (req, res) => {
         }
     } catch (err) {
         console.log(err);
+        res.status(500).render('register', {
+            title: 'Регистрация',
+            alert: 'Ошибка сервера.'
+        });
     }
 };
+
 
 //login
 export const login = async (req, res) => {

@@ -57,8 +57,11 @@ const hbs = exphbs.create({
             let day = date.getDate();
             let month = date.getMonth() + 1;
             let year = date.getFullYear();
-            return `${day}/${month}/${year}`;
+            day = day < 10 ? '0' + day : day;
+            month = month < 10 ? '0' + month : month;
+            return `${year}-${month}-${day}`;
         },
+        
     },
 });
 
@@ -179,7 +182,7 @@ app.post('/login',
         const errors = validationResult(req);
 
         if (!errors.isEmpty()) {
-            const errorMsg = errors.array().map(e => e.msg).join(', ');
+            const errorMsg = errors.array().map(e => e.msg).join(' ');
 
             return res.render('login', {
                 title: 'Вход',
@@ -222,7 +225,34 @@ app.get('/manageorders/deleteorderadmin/:id', ensureAuthenticated, ensureAdmin, 
 app.get('/myorders', ensureAuthenticated, ensureUser, myorders);
 app.post('/myorders', ensureAuthenticated, ensureUser, findOrders);
 app.get('/myorders/addorder', ensureAuthenticated, ensureUser, formOrder);
-app.post('/myorders/addorder', ensureAuthenticated, ensureUser, createOrder);
+app.post('/myorders/addorder', ensureAuthenticated, ensureUser,
+    body('good').isLength({ min: 2, max: 50 }).withMessage('Название должно быть длиной от 2 до 50 символов!'),
+    body('quantity').isInt({ min: 1, max: 500 }).withMessage('Вы можете заказать от 1 до 500 единиц товара!'),
+    body('price').isFloat({ min: 1, max: 1000000 }).withMessage('Стоимость может принимать только численные значения!'),
+    body('link').isURL().withMessage('Некорректный формат ссылки!'),
+    body('arrival_date').isAfter().withMessage('Желаемая дата доставки не может быть раньше текущего дня!'),
+    (req, res) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            const errorMsg = errors.array().map(e => e.msg).join(' ');
+
+            return res.render('add-order', {
+                title: 'Оформление заказа',
+                alert: errorMsg,
+                good: req.body.good,
+                quantity: req.body.quantity,
+                price: req.body.price,
+                link: req.body.link,
+                arrival_date: req.body.arrival_date
+            });
+        }
+
+        createOrder(req, res);
+    }
+);
+
+
 app.get('/myorders/editorder/:id', ensureAuthenticated, ensureUser, editOrder);
 app.post('/myorders/editorder/:id', ensureAuthenticated, ensureUser, updateOrder);
 

@@ -1,12 +1,6 @@
 <div class="row" style="padding-top: 80px;">
     <div class="col-12 d-flex justify-content-center"><h2>Оформить новый заказ</h2></div>
 </div>
-{{#if alert}}
-<div class="alert alert-success alert-dismissible fade show" role="alert">
-{{alert}}
-  <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-{{/if}}
 <div class="col-12 d-flex justify-content-center">
     <nav aria-label="breadcrumb">
     <ol class="breadcrumb">
@@ -18,3 +12,15 @@
 <form action="/myorders/addorder" class="row g-3 needs-validation" method="POST" novalidate>
     {{> order-form}}
 </form>
+
+<div id="snackbar">{{alert}}</div>
+
+<script src="/javascript/snackbar.js"></script>
+<script>
+  if ("{{alert}}") {
+    var message = "{{alert}}";
+    if (message !== undefined && message !== null) {
+      snackBAR(message);
+    }
+  }
+</script>
