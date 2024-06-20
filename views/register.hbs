@@ -35,33 +35,15 @@
             </div>
         </div>
     </div>
-  <div id="snackbar"></div>
+
+<div id="snackbar">{{alert}}</div>
+
 <script src="/javascript/snackbar.js"></script>
 <script>
-const registerForm = document.registerForm;
-
-registerForm.addEventListener("submit", function(event) {
-    if (!registerForm.reportValidity()) {
-        event.preventDefault();
-    } else {
-        var formData = new FormData(this);
-
-        fetch('/register', {
-            method: 'POST',
-            body: formData
-        })
-        .then(function(response) {
-            if (!response.ok) {
-                return response.json().then(function(data) {
-                    throw new Error(data.alert);
-                });
-            }
-            snackBAR("Регистрация прошла успешно!");
-        })
-        .catch(function(error) {
-            snackBAR(error.message);
-        });
+  if ("{{alert}}") {
+    var message = "{{alert}}";
+    if (message !== undefined && message !== null) {
+      snackBAR(message);
     }
-});
-
+  }
 </script>

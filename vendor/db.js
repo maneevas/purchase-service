@@ -36,7 +36,7 @@ export const login = async (req, res) => {
     try {
         const query = 'SELECT * FROM users WHERE email = ? AND password = ?';
         console.log('Выполняется SQL-запрос: ', query);
-        console.log(`Email: ${email}, Password: ${password}`); // see params
+        console.log(`Email: ${email}, Password: ${password}`)
 
         const connection = await pool.getConnection();
         console.log('Подключено как ID ' + connection.threadId);

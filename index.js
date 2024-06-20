@@ -150,17 +150,23 @@ app.post('/register',
 
         if (!errors.isEmpty()) {
             const errorMsg = errors.array().map(e => e.msg).join(' ');
-            return res.json({ status: 'error', alert: errorMsg });
+
+            return res.render('register', {
+                title: 'Регистрация',
+                alert: errorMsg
+            });
         }
 
         try {
             await register(req, res);
         } catch (err) {
             console.log(err);
-            res.status(500).json({ status: 'error', alert: 'Ошибка сервера.' });
+            res.status(500).render('register', {
+                title: 'Регистрация',
+                alert: 'Ошибка сервера.'
+            });
         }
     });
-
 
 
 app.get('/login', redirectIfAuthenticated, (req, res) => {
