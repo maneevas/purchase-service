@@ -13,10 +13,19 @@
   </div>
   <div class="row">
     <div class="col-12">
-      <form class="d-flex" method="POST" action="/manageorders" novalidate>
-        <input class="form-control me-2" type="search" placeholder="Поиск по статусу" name="search" aria-label="Search">
-        <button class="btn btn-outline-dark" type="submit">Найти</button>
-      </form>
+      <form class="d-flex" method="GET" action="/manageorders" novalidate>
+  <select class="form-control me-2" name="search" aria-label="Search">
+    <option value="">Все товары</option>
+    <option value="На рассмотрении" {{#if (eq searchTerm "На рассмотрении")}}selected{{/if}}>На рассмотрении</option>
+    <option value="Закупаем" {{#if (eq searchTerm "Закупаем")}}selected{{/if}}>Закупаем</option>
+    <option value="Доставляем" {{#if (eq searchTerm "Доставляем")}}selected{{/if}}>Доставляем</option>
+    <option value="Ожидает получения" {{#if (eq searchTerm "Ожидает получения")}}selected{{/if}}>Ожидает получения</option>
+  </select>
+  <button class="btn btn-outline-dark" type="submit">Найти</button>
+</form>
+
+
+
     </div>
   </div>
 
@@ -52,7 +61,6 @@
     <form action="/updateOrderStatus/{{this.id}}" method="POST">
         <div class="form-floating" style="width: 150px;">
             <select class="form-control" id="floatingSelect" name="status" style="padding: 0;">
-                <option value="" {{#unless this.status}}selected{{/unless}}>Выберите статус</option>
                 <option value="На рассмотрении" {{#if (eq this.status "На рассмотрении")}}selected{{/if}}>На рассмотрении</option>
                 <option value="Закупаем" {{#if (eq this.status "Закупаем")}}selected{{/if}}>Закупаем</option>
                 <option value="Доставляем" {{#if (eq this.status "Доставляем")}}selected{{/if}}>Доставляем</option>
