@@ -254,6 +254,30 @@ app.post('/myorders/addorder', ensureAuthenticated, ensureUser,
 
 
 app.get('/myorders/editorder/:id', ensureAuthenticated, ensureUser, editOrder);
-app.post('/myorders/editorder/:id', ensureAuthenticated, ensureUser, updateOrder);
+app.post('/myorders/editorder/:id', ensureAuthenticated, ensureUser,
+    body('good').isLength({ min: 2, max: 50 }).withMessage('Название должно быть длиной от 2 до 50 символов!'),
+    body('quantity').isInt({ min: 1, max: 500 }).withMessage('Вы можете заказать от 1 до 500 единиц товара!'),
+    body('price').isFloat({ min: 1, max: 1000000 }).withMessage('Стоимость может принимать только численные значения!'),
+    body('link').isURL().withMessage('Некорректный формат ссылки!'),
+    body('arrival_date').isAfter().withMessage('Желаемая дата доставки не может быть раньше текущего дня!'),
+    (req, res) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            const errorMsg = errors.array().map(e => e.msg).join(' ');
+        
+            return res.render('edit-order', {
+                title: 'Изменение заказа',
+                alert: errorMsg,
+                rows: [{
+                    ...req.body,
+                    id: req.params.id
+                }]
+            });
+        }
+
+        updateOrder(req, res);
+    }
+);
 
 app.listen(port, () => console.log(`Listening on port ${port}`));
