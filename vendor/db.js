@@ -217,7 +217,7 @@ export const create = async (req, res) => {
     }
 };
 
- //update user
+//update user
 export const update = async (req, res) => {
     const { surname, name, patname, location, email, password} = req.body;
     try {
@@ -225,21 +225,52 @@ export const update = async (req, res) => {
         console.log('Connected as ID' + connection.threadId);
         const query = 'UPDATE users SET surname = ?, name = ?, patname =?, location = ?, email = ?, password = ? WHERE id = ?';
         const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password, req.params.id]);
+
+        let page = Number(req.query.page) || 1;
+        let limit = 8;
+        let offset = (page - 1) * limit;
+        const query2 = `SELECT users.*, COUNT(orders.id) as order_count FROM users LEFT JOIN orders ON users.id = orders.author_id WHERE users.is_admin = 0 GROUP BY users.id LIMIT ${limit} OFFSET ${offset}`;
+        const [userRows, userFields] = await connection.query(query2);
+        
+        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM users');
+        let totalPages = Math.ceil(totalRows[0].total / limit);
+        let pages = Array.from({length: totalPages}, (_, i) => {
+            return {
+                number: i + 1,
+                isCurrent: i + 1 === page
+            };
+        });
+
         connection.release();
-        
-        const connection2 = await pool.getConnection();
-        console.log('Connected as ID' + connection2.threadId);
-        const query2 = 'SELECT * FROM users WHERE id = ?';
-        const [rows2, fields2] = await connection2.query(query2, [req.params.id]);
-        connection2.release();
-        res.render('edit-user', {title: 'Редактирование пользователя', rows: rows2, alert: 'Данные пользователя успешно обновлены!', isAuthenticated: req.session.isAuthenticated, user: req.session.user });
-        console.log('The data from users table: \n', rows2);
-        
-        console.log('The data from users table: \n', rows);
+
+        res.render('dashboard', {
+            title: 'Панель управления',
+            alert: 'Данные пользователя успешно обновлены!',
+            rows: userRows,
+            page: page,
+            totalPages: totalPages,
+            prevPage: page > 1 ? page - 1 : null,
+            nextPage: page < totalPages ? page + 1 : null,
+            pages: pages,
+            isAuthenticated: req.session.isAuthenticated,
+            user: req.session.user
+        });
     } catch (err) {
         console.log(err);
+        res.status(500).render('edit-user', {
+            title: 'Редактирование пользователя',
+            alert: 'Ошибка сервера.',
+            rows: [{
+                surname, name, patname, location, email, password
+            }]
+        });
+        
     }
 };
+
+
+
+
 
   
 //delete user

@@ -243,10 +243,48 @@ app.post('/dashboard/adduser',
         }
     });
 
-
-
 app.get('/dashboard/edituser/:id', ensureAuthenticated, ensureAdmin, edit);
-app.post('/dashboard/edituser/:id', ensureAuthenticated, ensureAdmin, update);
+app.post('/dashboard/edituser/:id', 
+    ensureAuthenticated, 
+    ensureAdmin,
+    body('name').matches(/^[А-Яа-я]+$/).withMessage('Имя должно содержать только буквы!'),
+    body('surname').matches(/^[А-Яа-я]+$/).withMessage('Фамилия должна содержать только буквы!'),
+    body('patname').matches(/^[А-Яа-я]+$/).withMessage('Отчество должно содержать только буквы!'),
+    body('location').matches(/^[А-Яа-я]+$/).withMessage('Название города должно содержать только буквы!'),
+    body('email').isLength({ min: 6, max: 15 }).withMessage('Логин должен содержать от 6 до 15 символов!'),
+    body('password').isLength({ min: 6, max: 30 }).withMessage('Пароль должен содержать от 6 до 30 символов!'),
+    async (req, res) => {
+        const { surname, name, patname, location, email, password } = req.body;
+
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            const errorMsg = errors.array().map(e => e.msg).join(' ');
+            
+            return res.render('edit-user', {
+                title: 'Редактирование пользователя',
+                alert: errorMsg,
+                rows: [{
+                    id: req.params.id,
+                    surname, name, patname, location, email, password
+                }],
+                isAuthenticated: req.session.isAuthenticated,
+                user: req.session.user
+            });
+        }
+               
+
+        try {
+            await update(req, res);
+        } catch (err) {
+            console.log(err);
+            res.status(500).render('edit-user', {
+                title: 'Редактирование пользователя',
+                alert: 'Ошибка сервера.'
+            });
+        }
+    });
+
 app.get('/dashboard/vieworder/:id', ensureAuthenticated, ensureAdmin, vieworder);
 app.get('/dashboard/:id', ensureAuthenticated, ensureAdmin, deleteUser);
 

@@ -1,20 +1,21 @@
-<div class="row" style="padding-top: 80px;">
-    <div class="col-12"><h2>Редактировать данные пользователя</h2></div>
-     <nav aria-label="breadcrumb">
-  <ol class="breadcrumb">
+<div class="row justify-content-center" style="padding-top: 80px;">
+    <div class="col-12 text-center"><h2>Редактировать данные пользователя</h2></div>
+</div>
+<nav aria-label="breadcrumb" class="text-center">
+  <ol class="breadcrumb justify-content-center">
     <li class="breadcrumb-item"><a href="/dashboard">База пользователей</a></li>
     <li class="breadcrumb-item active" aria-current="page">Изменение данных пользователя</li>
   </ol>
 </nav>
-</div>
 
-<div id="snackbar">{{alert}}</div>
 
 {{#each rows}}
-<form action="/dashboard/edituser/{{this.id}}" class="row g-3 needs-validation" method="POST" novalidate>
+<form action="/dashboard/edituser/{{this.id}}" class="row g-3 needs-validation" method="POST">
     {{> user-form}}
 </form>
 {{/each}}
+
+<div id="snackbar">{{alert}}</div>
 
 <script src="/javascript/snackbar.js"></script>
 <script>
