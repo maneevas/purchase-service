@@ -226,7 +226,10 @@ app.post('/dashboard/adduser',
 
             return res.render('add-user', {
                 title: 'Создание пользователя',
+                id: req.params.id,
                 alert: errorMsg,
+                isAuthenticated: req.session.isAuthenticated,
+                user: req.session.user,
                 surname, name, patname, location, email
             });
         }
@@ -305,6 +308,8 @@ app.post('/manageorders/editorderadmin/:id', ensureAuthenticated, ensureAdmin,
             return res.render('edit-order-admin', {
                 title: 'Изменение заказа',
                 alert: errorMsg,
+                isAuthenticated: req.session.isAuthenticated,
+                user: req.session.user,
                 rows: [{
                     ...req.body,
                     id: req.params.id
@@ -340,7 +345,9 @@ app.post('/myorders/addorder', ensureAuthenticated, ensureUser,
                 quantity: req.body.quantity,
                 price: req.body.price,
                 link: req.body.link,
-                arrival_date: req.body.arrival_date
+                arrival_date: req.body.arrival_date,
+                isAuthenticated: req.session.isAuthenticated,
+                user: req.session.user
             });
         }
 
@@ -365,6 +372,8 @@ app.post('/myorders/editorder/:id', ensureAuthenticated, ensureUser,
             return res.render('edit-order', {
                 title: 'Изменение заказа',
                 alert: errorMsg,
+                isAuthenticated: req.session.isAuthenticated,
+                user: req.session.user,
                 rows: [{
                     ...req.body,
                     id: req.params.id
