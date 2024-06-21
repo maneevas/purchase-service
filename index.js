@@ -1,4 +1,6 @@
+import {mlog} from './vendor/logs.js'
 console.log(`Current directory: ${process.cwd()}`);
+mlog(`Current directory: ${process.cwd()}`);
 
 import express from 'express'
 import exphbs from 'express-handlebars'
@@ -12,8 +14,6 @@ import { dirname } from 'path';
 import bodyParser from 'body-parser';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-
 
 import { config } from 'dotenv';
 import { resolve } from 'path';
@@ -89,15 +89,18 @@ export const pool = mysql.createPool({
 pool.getConnection((err, connection) => {
     if(err) {
         console.error('Error connecting to the database: ', err);
+        mlog('Error connecting to the database: ', err);
         return;
     }
     console.log('Connected as ID' + connection.threadId);
+    mlog('Connected as ID' + connection.threadId);
 });
 
 //is auth
 app.use((req, res, next) => {
     res.locals.isAuthenticated = req.session.user ? true : false;
     console.log('isAuthenticated:', res.locals.isAuthenticated);
+    mlog('isAuthenticated:', res.locals.isAuthenticated);
     next();
 });
 
@@ -111,6 +114,7 @@ export function ensureAuthenticated(req, res, next) {
 export function ensureAdmin(req, res, next) {
     if (req.session && req.session.user && req.session.user.is_admin) {
         console.log('User is admin');
+        mlog('User is admin');
         return next();
     }
     res.redirect('/not-authorized');
@@ -131,6 +135,7 @@ function redirectIfAuthenticated(req, res, next) {
         next();
     }
 }
+
 // routes
 
 app.get('/', (req, res) => {
@@ -164,6 +169,7 @@ app.post('/register',
             await register(req, res);
         } catch (err) {
             console.log(err);
+            mlog(err);
             res.status(500).render('register', {
                 title: 'Регистрация',
                 alert: 'Ошибка сервера.'
@@ -198,6 +204,7 @@ app.get('/logout', (req, res) => {
     req.session.destroy(function(err) {
         if (err) {
             console.log(err);
+            mlog(err);
         } else {
             res.redirect('/login');
         }
@@ -239,6 +246,7 @@ app.post('/dashboard/adduser',
             await create(req, res, errors);
         } catch (err) {
             console.log(err);
+            mlog(err);
             res.status(500).render('add-user', {
                 title: 'Создание пользователя',
                 alert: 'Ошибка сервера.'
@@ -281,6 +289,7 @@ app.post('/dashboard/edituser/:id',
             await update(req, res);
         } catch (err) {
             console.log(err);
+            mlog(err);
             res.status(500).render('edit-user', {
                 title: 'Редактирование пользователя',
                 alert: 'Ошибка сервера.'
@@ -385,4 +394,8 @@ app.post('/myorders/editorder/:id', ensureAuthenticated, ensureUser,
     }
 );
 
-app.listen(port, () => console.log(`Listening on port ${port}`));
+app.listen(port, () => {
+    console.log(`Listening on port ${port}`);
+    mlog(`Listening on port ${port}`);
+});
+

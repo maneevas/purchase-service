@@ -1,13 +1,7 @@
 import fs from 'fs-extra'
 import path from 'path'
 
-var appDir = path.dirname(import.meta.url);
-appDir = appDir.split('///')
-appDir = appDir[1]
-let test = true
-if (!test){
-  appDir = "//"+appDir
-}
+var appDir = process.cwd();
 
 console.log(appDir);
 
@@ -31,7 +25,13 @@ export function mlog (par) {
       }
       
     } 
-    fs.writeFileSync(path.join(appDir,'logs',`${curdate(datecreate.getDate())}.${curdate(datecreate.getMonth()+1)} log.txt`),
+
+    const logsDir = path.join(appDir, 'vendor', 'logs');
+    if (!fs.existsSync(logsDir)) {
+        fs.mkdirSync(logsDir);
+    }
+
+    fs.writeFileSync(path.join(logsDir, `${curdate(datecreate.getDate())}.${curdate(datecreate.getMonth()+1)} log.txt`),
     texta,
     {
       encoding: "utf8",

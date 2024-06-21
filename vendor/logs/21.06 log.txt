@@ -1,0 +1,70 @@
+
+ 18:51:07 Current directory: D:\program stuff\java script\purchase-service
+ 18:51:07 Listening on port 5000
+ 18:51:17 isAuthenticated: false
+ 18:51:17 isAuthenticated: false
+ 18:51:21 isAuthenticated: false
+ 18:51:40 isAuthenticated: false
+ 18:51:48 isAuthenticated: false
+ 18:51:48 Выполняется SQL-запрос:  SELECT * FROM users WHERE email = ? AND password = ?
+ 18:51:48 Email: sonyam, Password: 143143
+ 18:51:48 Подключено как ID 809
+ 18:51:48 
+ id:1 
+ name:Соня 
+ surname:Манеева 
+ patname:Рафисовна 
+ location:Ульяновск 
+ email:sonyam 
+ password:143143 
+ created_at:null 
+ updated_at:null 
+ is_admin:1
+ 18:51:48 isAuthenticated: true
+ 18:51:48 User is admin
+ 18:51:48 Connected as ID809
+ 18:52:08 isAuthenticated: true
+ 18:52:08 User is admin
+ 18:52:08 Connected as ID809
+ 18:52:08 Архивные заказы были отображены!
+ 18:52:12 isAuthenticated: true
+ 18:52:12 User is admin
+ 18:52:12 Connected as ID809
+ 18:52:12 База данных пользователей отобразилась!
+ 18:52:22 isAuthenticated: true
+ 18:52:22 User is admin
+ 18:52:22 Connected as ID809
+ 18:52:32 isAuthenticated: true
+ 18:52:32 User is admin
+ 18:52:32 Connected as ID809
+ 18:52:36 isAuthenticated: true
+ 18:52:36 User is admin
+ 18:52:36 Connected as ID809
+ 18:52:36 Заказ был отредактирован администратором!
+ 18:52:50 isAuthenticated: true
+ 18:52:50 isAuthenticated: false
+ 18:52:58 isAuthenticated: false
+ 18:53:08 isAuthenticated: false
+ 18:53:08 Выполняется SQL-запрос:  SELECT * FROM users WHERE email = ? AND password = ?
+ 18:53:08 Email: appavlovna, Password: appapp
+ 18:53:08 Подключено как ID 809
+ 18:53:08 
+ id:5 
+ name:Полина 
+ surname:Андреева 
+ patname:Павловна 
+ location:Москва 
+ email:appavlovna 
+ password:appapp 
+ created_at:null 
+ updated_at:null 
+ is_admin:0
+ 18:53:08 isAuthenticated: true
+ 18:53:08 Connected as ID809
+ 18:53:20 isAuthenticated: true
+ 18:53:46 isAuthenticated: true
+ 18:53:46 Connected as ID809
+ 18:53:46 Connected as ID809
+ 18:53:46 Был добавлен новый заказ!
+ 18:53:54 isAuthenticated: true
+ 18:53:54 isAuthenticated: false

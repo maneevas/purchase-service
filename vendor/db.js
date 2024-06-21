@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 import { pool } from '../index.js';
+import { mlog } from './logs.js';
 
 
 //register
@@ -21,16 +22,20 @@ export const register = async (req, res) => {
 
         const query = 'INSERT INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
         console.log('Выполняется SQL-запрос: ', query);
+        mlog('Выполняется SQL-запрос: ', query);
         const result = await pool.execute(query, [surname, name, patname, location, email, password]);
         if (result) {
             const [rows, fields] = result;
             res.render('login', { alert: 'Аккаунт успешно создан! Теперь вы можете войти.' });
             console.log('The data from users table: \n', rows);
+            mlog('Аккаунт успешно создан!');
         } else {
             console.log('Ошибка!');
+            mlog('Ошибка!');
         }
     } catch (err) {
         console.log(err);
+        mlog(err);
         res.status(500).render('register', {
             title: 'Регистрация',
             alert: 'Ошибка сервера.'
@@ -46,22 +51,27 @@ export const login = async (req, res) => {
     // check for null or undefined
     if (!email || !password) {
         console.log('Ошибка: логин или пароль не определены');
+        mlog('Ошибка: логин или пароль не определены');
         return;
     }
 
     try {
         const query = 'SELECT * FROM users WHERE email = ? AND password = ?';
         console.log('Выполняется SQL-запрос: ', query);
+        mlog('Выполняется SQL-запрос: ', query);
         console.log(`Email: ${email}, Password: ${password}`)
+        mlog(`Email: ${email}, Password: ${password}`)
 
         const connection = await pool.getConnection();
         console.log('Подключено как ID ' + connection.threadId);
+        mlog('Подключено как ID ' + connection.threadId);
 
         const [rows, fields] = await connection.execute(query, [email, password]);
         if (rows.length > 0) {
             req.session.isAuthenticated = true;
             req.session.user = rows[0];
             console.log(req.session.user);
+            mlog(req.session.user);
 
             if (Number(req.session.user.is_admin) == 0) {
                 res.redirect('/myorders');
@@ -76,6 +86,7 @@ export const login = async (req, res) => {
         connection.release();
     } catch (err) {
         console.error(err);
+        mlog(err);
     }
 };
 
@@ -86,6 +97,7 @@ export const view = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         let page = Number(req.query.page) || 1;
         let limit = 8;
         let offset = (page - 1) * limit;
@@ -115,8 +127,10 @@ export const view = async (req, res) => {
             isAuthenticated: req.session.isAuthenticated,
             user: req.session.user });
         console.log('The data from users table: \n', rows);
+        mlog('База данных пользователей отобразилась!');
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -126,6 +140,7 @@ export const find = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         let searchTerm = req.body.search;
         
         let page = Number(req.query.page) || 1;
@@ -157,8 +172,10 @@ export const find = async (req, res) => {
             isAuthenticated: req.session.isAuthenticated,
             user: req.session.user });
         console.log('The data from users table: \n', rows);
+        mlog('Записи были найдены!');
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -186,13 +203,16 @@ export const create = async (req, res) => {
 
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'INSERT  INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
         const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password]);
         connection.release();
         res.redirect('/dashboard');
         console.log('The data from users table: \n', rows);
+        mlog('Новый пользователь был добавлен!');
     } catch (err) {
         console.log(err);
+        mlog(err);
         res.status(500).render('add-user', {
             title: 'Создание пользователя',
             alert: 'Ошибка сервера.'
@@ -207,13 +227,16 @@ export const create = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'SELECT * FROM users WHERE id = ?';
         const [rows, fields] = await connection.query(query, [req.params.id]);
         connection.release();
         res.render('edit-user', {title: 'Редактирование пользователя', rows, isAuthenticated: req.session.isAuthenticated, user: req.session.user });
         console.log('The data from users table: \n', rows);
+        mlog('Пользователь был отредактирован!');
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -223,6 +246,7 @@ export const update = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'UPDATE users SET surname = ?, name = ?, patname =?, location = ?, email = ?, password = ? WHERE id = ?';
         const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password, req.params.id]);
 
@@ -257,6 +281,7 @@ export const update = async (req, res) => {
         });
     } catch (err) {
         console.log(err);
+        mlog(err);
         res.status(500).render('edit-user', {
             title: 'Редактирование пользователя',
             alert: 'Ошибка сервера.',
@@ -278,13 +303,16 @@ export const deleteUser = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'DELETE FROM users WHERE id = ?';
         const [rows, fields] = await connection.query(query, [req.params.id]);
         connection.release();
         res.redirect('/dashboard?removed=Пользователь успешно удален!');
         console.log('The data from users table: \n', rows);
+        mlog('Пользователь успешно удален!');
     } catch (err) {
         console.log(err);
+        mlog(err);
         if (err.code === 'ER_ROW_IS_REFERENCED_2') {
             res.redirect('/dashboard?error=Удаление невозможно – у пользователя есть активные заказы!');
         } else {
@@ -298,6 +326,7 @@ export const vieworder = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
 
         let page = Number(req.query.page) || 1;
         let limit = 5;
@@ -318,6 +347,7 @@ export const vieworder = async (req, res) => {
         });
 
         console.log('The data from users table: \n', userRows);
+        mlog('Заказы были отображены!');
         const query2 = `SELECT * FROM orders WHERE author_id = ? AND status != 'Получен' LIMIT ${limit} OFFSET ${offset}`;
         const [orderRows, orderFields] = await connection.query(query2, [req.params.id]);
         connection.release();
@@ -335,6 +365,7 @@ export const vieworder = async (req, res) => {
         console.log('The data from orders table: \n', orderRows);
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -343,6 +374,7 @@ export const editOrderAdmin = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'SELECT * FROM orders WHERE id = ?';
         const [rows, fields] = await connection.query(query, [req.params.id]);
         connection.release();
@@ -350,6 +382,7 @@ export const editOrderAdmin = async (req, res) => {
         console.log('The data from orders table: \n', rows);
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -358,6 +391,7 @@ export const updateOrderAdmin = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'UPDATE orders SET quantity = ?, price = ?, link =? WHERE id = ?';
         await connection.query(query, [quantity, price, link, req.params.id]);
 
@@ -396,8 +430,10 @@ export const updateOrderAdmin = async (req, res) => {
             user: req.session.user
         });
         console.log('The data from orders table: \n', orderRows);
+        mlog('Заказ был отредактирован администратором!');
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -407,6 +443,7 @@ export const updateOrderStatus = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'UPDATE orders SET status = ? WHERE id = ?';
         await connection.query(query, [status, req.params.id]);
 
@@ -445,6 +482,7 @@ export const updateOrderStatus = async (req, res) => {
         });
     } catch (err) {
         console.log(err);
+        mlog(err);
         const errorMessage = encodeURIComponent('Произошла ошибка при обновлении статуса заказа');
         res.status(500).send({ message: errorMessage });
     }
@@ -456,6 +494,7 @@ export const deleteOrder = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'SELECT author_id FROM orders WHERE id = ?';
         const [rows, fields] = await connection.query(query, [req.params.id]);
         if(rows.length === 0) {
@@ -476,6 +515,7 @@ export const deleteOrder = async (req, res) => {
         res.redirect('/manageorders?removed=' + removedMessage);
     } catch (err) {
         console.log(err);
+        mlog(err);
         let errorMessage = encodeURIComponent('Произошла ошибка при удалении заказа.');
         res.redirect('/manageorders?error=' + errorMessage);
     }
@@ -486,6 +526,7 @@ export const viewarchive = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
 
         let page = Number(req.query.page) || 1;
         let limit = 10;
@@ -519,8 +560,10 @@ export const viewarchive = async (req, res) => {
             price_count: price_count
         });
         console.log('The data from orders table: \n', orderRows);
+        mlog('Архивные заказы были отображены!');
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -528,6 +571,7 @@ export const manageOrders = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
 
         let page = Number(req.query.page) || 1;
         let limit = 10;
@@ -578,6 +622,7 @@ export const manageOrders = async (req, res) => {
         console.log('The data from orders table: \n', orderRows);
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -592,6 +637,7 @@ export const manageOrders = async (req, res) => {
         try {
             const connection = await pool.getConnection();
             console.log('Connected as ID' + connection.threadId);
+            mlog('Connected as ID' + connection.threadId);
             let page = Number(req.query.page) || 1;
             let limit = 5;
             let offset = (page - 1) * limit;
@@ -621,6 +667,7 @@ export const manageOrders = async (req, res) => {
             console.log('The data from orders table: \n', rows);
         } catch (err) {
             console.log(err);
+            mlog(err);
         }
     };
 
@@ -629,6 +676,7 @@ export const findOrders = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         let searchTerm = req.body.search;
 
         let page = Number(req.query.page) || 1;
@@ -662,6 +710,7 @@ export const findOrders = async (req, res) => {
         console.log('The data from orders table: \n', rows);
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -677,12 +726,14 @@ export const createOrder = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'INSERT INTO orders SET good = ?, quantity = ?, price = ?, link = ?, creation_date = NOW(), arrival_date = ?, author_id = ?, status = "На рассмотрении"';
         await connection.query(query, [good, quantity, price, link, arrival_date, author_id]);
         connection.release();
 
         const connection2 = await pool.getConnection();
         console.log('Connected as ID' + connection2.threadId);
+        mlog('Connected as ID' + connection2.threadId);
         let page = Number(req.query.page) || 1;
         let limit = 5;
         let offset = (page - 1) * limit;
@@ -712,8 +763,10 @@ export const createOrder = async (req, res) => {
             isAuthenticated: req.session.isAuthenticated
         });
         console.log('The data from orders table: \n', rows2);
+        mlog('Был добавлен новый заказ!');
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -722,6 +775,7 @@ export const editOrder = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'SELECT * FROM orders WHERE id = ?';
         const [rows, fields] = await connection.query(query, [req.params.id]);
         connection.release();
@@ -729,6 +783,7 @@ export const editOrder = async (req, res) => {
         console.log('The data from orders table: \n', rows);
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
 
@@ -738,12 +793,14 @@ export const updateOrder = async (req, res) => {
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
+        mlog('Connected as ID' + connection.threadId);
         const query = 'UPDATE orders SET good = ?, quantity = ?, price = ?, link =?, arrival_date = ? WHERE id = ?';
         await connection.query(query, [good, quantity, price, link, arrival_date, req.params.id]);
         connection.release();
 
         const connection2 = await pool.getConnection();
         console.log('Connected as ID' + connection2.threadId);
+        mlog('Connected as ID' + connection2.threadId);
         let page = Number(req.query.page) || 1;
         let limit = 5;
         let offset = (page - 1) * limit;
@@ -773,7 +830,9 @@ export const updateOrder = async (req, res) => {
             isAuthenticated: req.session.isAuthenticated
         });
         console.log('The data from orders table: \n', rows2);
+        mlog('Заказ был отредактирован пользователем!');
     } catch (err) {
         console.log(err);
+        mlog(err);
     }
 };
