@@ -217,7 +217,29 @@ app.get('/ordersarchive', ensureAuthenticated, ensureAdmin, viewarchive);
 
 app.get('/manageorders', ensureAuthenticated, ensureAdmin, manageOrders);
 app.get('/manageorders/editorderadmin/:id', ensureAuthenticated, ensureAdmin, editOrderAdmin);
-app.post('/manageorders/editorderadmin/:id', ensureAuthenticated, ensureAdmin, updateOrderAdmin);
+app.post('/manageorders/editorderadmin/:id', ensureAuthenticated, ensureAdmin,
+    body('quantity').isInt({ min: 1, max: 500 }).withMessage('Заказать можно от 1 до 500 единиц товара!'),
+    body('price').isFloat({ min: 1, max: 1000000 }).withMessage('Стоимость может принимать только численные значения!'),
+    body('link').isURL().withMessage('Некорректный формат ссылки!'),
+    (req, res) => {
+        const errors = validationResult(req);
+
+        if (!errors.isEmpty()) {
+            const errorMsg = errors.array().map(e => e.msg).join(' ');
+        
+            return res.render('edit-order-admin', {
+                title: 'Изменение заказа',
+                alert: errorMsg,
+                rows: [{
+                    ...req.body,
+                    id: req.params.id
+                }]
+            });
+        }
+
+        updateOrderAdmin(req, res);
+    }
+);
 app.post('/updateOrderStatus/:id', ensureAuthenticated, ensureAdmin, updateOrderStatus);
 app.get('/manageorders/deleteorderadmin/:id', ensureAuthenticated, ensureAdmin, deleteOrder);
 
