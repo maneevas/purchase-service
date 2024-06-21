@@ -171,18 +171,35 @@ export const form = (req, res) => {
 //add new user
 export const create = async (req, res) => {
     const { surname, name, patname, location, email, password} = req.body;
+
     try {
+        // check if the users email is unique
+        const checkQuery = 'SELECT * FROM users WHERE email = ?';
+        const [users] = await pool.execute(checkQuery, [email]);
+        if (users.length > 0) {
+            return res.render('add-user', {
+                title: 'Создание пользователя',
+                alert: 'Пользователь с таким логином уже существует!',
+                surname, name, patname, location, email
+            });
+        }
+
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
         const query = 'INSERT  INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
         const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password]);
         connection.release();
-        res.render('add-user', {title: 'Создание пользователя', alert: 'Новый пользователь успешно создан!', isAuthenticated: req.session.isAuthenticated, user: req.session.user });
+        res.redirect('/dashboard');
         console.log('The data from users table: \n', rows);
     } catch (err) {
         console.log(err);
+        res.status(500).render('add-user', {
+            title: 'Создание пользователя',
+            alert: 'Ошибка сервера.'
+        });
     }
 };
+
 
 
  //edit user
