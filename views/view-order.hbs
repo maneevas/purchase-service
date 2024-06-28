@@ -38,7 +38,6 @@
             <th scope="col">Ссылка</th>
             <th scope="col">Дата оформления заказа</th>
             <th scope="col">Желаемая дата доставки</th>
-            <th scope="col">Город</th>
             <th scope="col">Статус заказа</th>
           </tr>
         </thead>
@@ -52,7 +51,6 @@
             <td><a href="{{this.link}}">{{this.link}}</a></td>
             <td>{{formatDate this.creation_date}}</td>
             <td>{{formatDate this.arrival_date}}</td>
-            <td>{{../viewedUser.location}}</td>
             <td>{{this.status}}</td>
           {{/each}}
         </tbody>

@@ -1,0 +1,12 @@
+
+ 16:25:32 Current directory: D:\program stuff\java script\purchase-service
+ 16:25:32 Listening on port 5000
+ 16:26:07 isAuthenticated: false
+ 16:26:07 isAuthenticated: false
+ 16:26:08 isAuthenticated: false
+ 16:26:12 isAuthenticated: false
+ 16:26:16 isAuthenticated: false
+ 16:26:52 isAuthenticated: false
+ 16:35:39 Current directory: D:\program stuff\java script\purchase-service
+ 16:35:39 Listening on port 5000
+ 16:35:48 isAuthenticated: false

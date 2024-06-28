@@ -6,7 +6,7 @@ import { mlog } from './logs.js';
 
 //register
 export const register = async (req, res) => {
-    const { surname, name, patname, location, email, password } = req.body;
+    const { surname, name, patname, email, password } = req.body;
 
     try {
         // check if the users email is unique
@@ -16,14 +16,14 @@ export const register = async (req, res) => {
             return res.render('register', {
                 title: 'Регистрация',
                 alert: 'Пользователь с таким логином уже существует!',
-                surname, name, patname, location, email
+                surname, name, patname, email
             });
         }
 
-        const query = 'INSERT INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
+        const query = 'INSERT INTO users SET surname = ?, name = ?, patname = ?, email = ?, password = ?';
         console.log('Выполняется SQL-запрос: ', query);
         mlog('Выполняется SQL-запрос: ', query);
-        const result = await pool.execute(query, [surname, name, patname, location, email, password]);
+        const result = await pool.execute(query, [surname, name, patname, email, password]);
         if (result) {
             const [rows, fields] = result;
             res.render('login', { alert: 'Аккаунт успешно создан! Теперь вы можете войти.' });
@@ -147,10 +147,10 @@ export const find = async (req, res) => {
         let limit = 8;
         let offset = (page - 1) * limit;
 
-        const query = `SELECT users.*, COUNT(orders.id) as order_count FROM users LEFT JOIN orders ON users.id = orders.author_id WHERE (users.surname LIKE ? OR users.location LIKE ?) GROUP BY users.id LIMIT ${limit} OFFSET ${offset}`;
+        const query = `SELECT users.*, COUNT(orders.id) as order_count FROM users LEFT JOIN orders ON users.id = orders.author_id WHERE (users.surname LIKE ?) GROUP BY users.id LIMIT ${limit} OFFSET ${offset}`;
         const [rows, fields] = await connection.query(query, ['%' + searchTerm + '%', '%' + searchTerm + '%']);
 
-        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM users WHERE surname LIKE ? OR location LIKE ?', ['%' + searchTerm + '%', '%' + searchTerm + '%']);
+        const [totalRows] = await connection.query('SELECT COUNT(*) as total FROM users WHERE surname LIKE ?', ['%' + searchTerm + '%']);
         let totalPages = Math.ceil(totalRows[0].total / limit);
         let pages = Array.from({length: totalPages}, (_, i) => {
             return {
@@ -187,7 +187,7 @@ export const form = (req, res) => {
 
 //add new user
 export const create = async (req, res) => {
-    const { surname, name, patname, location, email, password} = req.body;
+    const { surname, name, patname, email, password} = req.body;
 
     try {
         // check if the users email is unique
@@ -197,15 +197,15 @@ export const create = async (req, res) => {
             return res.render('add-user', {
                 title: 'Создание пользователя',
                 alert: 'Пользователь с таким логином уже существует!',
-                surname, name, patname, location, email
+                surname, name, patname, email
             });
         }
 
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
         mlog('Connected as ID' + connection.threadId);
-        const query = 'INSERT  INTO users SET surname = ?, name = ?, patname = ?, location = ?, email = ?, password = ?';
-        const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password]);
+        const query = 'INSERT  INTO users SET surname = ?, name = ?, patname = ?, email = ?, password = ?';
+        const [rows, fields] = await connection.query(query, [surname, name, patname, email, password]);
         connection.release();
         res.redirect('/dashboard');
         console.log('The data from users table: \n', rows);
@@ -242,13 +242,13 @@ export const create = async (req, res) => {
 
 //update user
 export const update = async (req, res) => {
-    const { surname, name, patname, location, email, password} = req.body;
+    const { surname, name, patname, email, password} = req.body;
     try {
         const connection = await pool.getConnection();
         console.log('Connected as ID' + connection.threadId);
         mlog('Connected as ID' + connection.threadId);
-        const query = 'UPDATE users SET surname = ?, name = ?, patname =?, location = ?, email = ?, password = ? WHERE id = ?';
-        const [rows, fields] = await connection.query(query, [surname, name, patname, location, email, password, req.params.id]);
+        const query = 'UPDATE users SET surname = ?, name = ?, patname =?, email = ?, password = ? WHERE id = ?';
+        const [rows, fields] = await connection.query(query, [surname, name, patname, email, password, req.params.id]);
 
         let page = Number(req.query.page) || 1;
         let limit = 8;
@@ -286,7 +286,7 @@ export const update = async (req, res) => {
             title: 'Редактирование пользователя',
             alert: 'Ошибка сервера.',
             rows: [{
-                surname, name, patname, location, email, password
+                surname, name, patname, email, password
             }]
         });
         

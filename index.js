@@ -150,7 +150,6 @@ app.post('/register',
     body('name').matches(/^[А-Яа-я]+$/).withMessage('Имя должно содержать только буквы!'),
     body('surname').matches(/^[А-Яа-я]+$/).withMessage('Фамилия должна содержать только буквы!'),
     body('patname').matches(/^[А-Яа-я]+$/).withMessage('Отчество должно содержать только буквы!'),
-    body('location').matches(/^[А-Яа-я]+$/).withMessage('Название города должно содержать только буквы!'),
     body('email').isLength({ min: 6, max: 15 }).withMessage('Логин должен содержать от 6 до 15 символов!'),
     body('password').isLength({ min: 6, max: 30 }).withMessage('Пароль должен содержать от 6 до 30 символов!'),
     async (req, res) => {
@@ -220,11 +219,10 @@ app.post('/dashboard/adduser',
     body('name').matches(/^[А-Яа-я]+$/).withMessage('Имя должно содержать только буквы!'),
     body('surname').matches(/^[А-Яа-я]+$/).withMessage('Фамилия должна содержать только буквы!'),
     body('patname').matches(/^[А-Яа-я]+$/).withMessage('Отчество должно содержать только буквы!'),
-    body('location').matches(/^[А-Яа-я]+$/).withMessage('Название города должно содержать только буквы!'),
     body('email').isLength({ min: 6, max: 15 }).withMessage('Логин должен содержать от 6 до 15 символов!'),
     body('password').isLength({ min: 6, max: 30 }).withMessage('Пароль должен содержать от 6 до 30 символов!'),
     async (req, res) => {
-        const { surname, name, patname, location, email, password } = req.body;
+        const { surname, name, patname, email, password } = req.body;
 
         const errors = validationResult(req);
 
@@ -237,7 +235,7 @@ app.post('/dashboard/adduser',
                 alert: errorMsg,
                 isAuthenticated: req.session.isAuthenticated,
                 user: req.session.user,
-                surname, name, patname, location, email
+                surname, name, patname, email
             });
         }
 
@@ -261,11 +259,10 @@ app.post('/dashboard/edituser/:id',
     body('name').matches(/^[А-Яа-я]+$/).withMessage('Имя должно содержать только буквы!'),
     body('surname').matches(/^[А-Яа-я]+$/).withMessage('Фамилия должна содержать только буквы!'),
     body('patname').matches(/^[А-Яа-я]+$/).withMessage('Отчество должно содержать только буквы!'),
-    body('location').matches(/^[А-Яа-я]+$/).withMessage('Название города должно содержать только буквы!'),
     body('email').isLength({ min: 6, max: 15 }).withMessage('Логин должен содержать от 6 до 15 символов!'),
     body('password').isLength({ min: 6, max: 30 }).withMessage('Пароль должен содержать от 6 до 30 символов!'),
     async (req, res) => {
-        const { surname, name, patname, location, email, password } = req.body;
+        const { surname, name, patname, email, password } = req.body;
 
         const errors = validationResult(req);
 
@@ -277,7 +274,7 @@ app.post('/dashboard/edituser/:id',
                 alert: errorMsg,
                 rows: [{
                     id: req.params.id,
-                    surname, name, patname, location, email, password
+                    surname, name, patname, email, password
                 }],
                 isAuthenticated: req.session.isAuthenticated,
                 user: req.session.user
